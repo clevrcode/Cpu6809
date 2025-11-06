@@ -1,0 +1,9 @@
+<template>
+    <svg xmlns="http://www.w3.org/2000/svg" width="2em" height="2em" viewBox="0 0 24 24"><!-- Icon from Material Symbols by Google - https://github.com/google/material-design-icons/blob/master/LICENSE --><path fill="currentColor" d="M14 19V5h4v14zm-8 0V5h4v14z" /></svg>
+</template>
+
+<script>
+export default {
+    name: 'Stop'
+}
+</script>
