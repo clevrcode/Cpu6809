@@ -1,16 +1,7 @@
 export const useMainStore = defineStore('main', () => {
 
     const registers = ref({
-        "A": 0,
-        "B": 0,
-        "D": 0,
-        "X": 0,
-        "Y": 0,
-        "U": 0,
-        "S": 0,
-        "PC": 0,
-        "CC": 0,
-        "DP": 0
+        "A": 0, "B": 0, "D": 0, "X": 0, "Y": 0, "U": 0, "S": 0, "PC": 0, "CC": 0, "DP": 0
     })
     const map_type = ref("")
     const wait = ref(false)
@@ -107,7 +98,19 @@ export const useMainStore = defineStore('main', () => {
         try {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const url = useRuntimeConfig().public.api_url + "/step"
-            console.log(`url: ${url}`)
+            const response = await $fetch(url, { method: 'PUT', headers})
+            setRegisters(response)
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
+    async function stepover() {
+        console.log("entering store.stepover()")
+        try {
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const url = useRuntimeConfig().public.api_url + "/stepover"
             const response = await $fetch(url, { method: 'PUT', headers})
             setRegisters(response)
         } catch (error) {
@@ -147,6 +150,7 @@ export const useMainStore = defineStore('main', () => {
         addBreakpoint,
         run,
         step,
+        stepover,
         reset
     }
 })

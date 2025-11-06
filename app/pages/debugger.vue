@@ -1,6 +1,8 @@
 <template>
     <div>
-        The debug page
+        <h1>
+            The debug page
+        </h1>
     </div>
 </template>
 

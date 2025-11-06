@@ -1,4 +1,14 @@
 <template>
+    <transition name="regform">
+        <RegisterForm v-if="showRegForm" class="register-form"
+            @cancel="canClose"
+            @submit="submitRequest"
+            :name="regFormName"
+            :value="regFormValue"
+            :size="regValSize"
+        />
+    </transition>
+
     <div class="main-page">
         <div class="control-panel">
             <div class="status-panel">
@@ -12,7 +22,7 @@
             </div>
         </div>
         <div class="control-panel">
-            <Registers></Registers>
+            <Registers @update="openForm"></Registers>
             <CrtDisplay></CrtDisplay>  
         </div>
     </div>
@@ -20,10 +30,27 @@
 
 <script setup>
 
-  const cpuRunning = ref(false)
-  const store = useMainStore()
+    const cpuRunning = ref(false)
+    const store = useMainStore()
 
-  const running = computed(() => cpuRunning.value ? "RUNNING" : "HALTED")
+    const showRegForm = ref(false)
+    const regFormName = ref("")
+    const regFormValue = ref(0)
+    const regValSize = ref(16)
+
+    function openForm(name) {
+        showRegForm.value = true
+        regFormName.value = name
+        regFormValue.value = store.registers[name]
+    }
+
+    function canClose() {
+        showRegForm.value = false
+    }
+    function submitRequest(name, value) {
+        console.log(`submit request ${name}: ${value}`)
+        canClose()
+    }
 
     function update() {
         store.getRegisters()
@@ -65,12 +92,13 @@
     }
     
     function step() {
-        console.log("step 1 instruction")
         store.step()
-        // store.updateDisplay()
+        updateDisplay()
     }
     
     function stepover() {
+        store.stepover()
+        updateDisplay()
     }
 
     function reset() {
@@ -109,5 +137,28 @@ h1 {
     display: flex;
     flex-direction: row;
 }
+
+.register-form {
+    position: fixed;
+    top: 50%;
+    right: 0%;
+    width: 50%;
+    z-index: 1;
+}
+
+.regform-enter-from,
+.regform-leave-to {
+    transform: translateX(100%);
+}
+
+.regform-enter-active,
+.regform-leave-active {
+    transition: transform 0.5s;
+}
+
+.regform-enter-to {
+    transform: translateX(0%);
+}
+
 
 </style>

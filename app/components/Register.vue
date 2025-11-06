@@ -1,10 +1,20 @@
 <template>
-    <div class="reg-window">
-        <div class="reg-name">{{ name }}</div><div class="reg-value" :class="{ 'wide-box': large, modified }">{{ hex_value }}</div>
+    <div class="reg-window" >
+        <div class="reg-name" @click="update">{{ name }}</div>
+        <div class="reg-value" :class="{ 'wide-box': large, modified }">{{ hex_value }}</div>
     </div>
 </template>
 
 <script setup>
+
+// const emit = defineEmits(['update'])
+
+const emit = defineEmits(['update'])
+
+function update() {
+    console.log("click update")
+    emit('update', props.name)
+}
 
 const props = defineProps({
     name: {
@@ -21,11 +31,14 @@ const props = defineProps({
 const modified = ref(false)
 const store = useMainStore()
 
+function format_value(val, radix, width) {
+    return val.toString(radix).padStart(width, '0').toUpperCase()
+}
+
 const hex_value = computed(() => {
     // console.log(`convert value ${props.name} : ${store.registers[props.name]}`)
     const w = props.large ? 4 : 2
-    const reg_value = store.registers[props.name]
-    return reg_value.toString(16).padStart(w, '0').toUpperCase()
+    return format_value(store.registers[props.name], 16, w)
 })
 
 </script>
