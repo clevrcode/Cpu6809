@@ -1,7 +1,7 @@
 <template>
-    <div>
+    <div class="sts-box">
         <div class="sts-window sts-alarm-off" :class="{ 'sts-alarm-on': haltOn }">HALTED</div>
-        <div class="sts-window sts-info-off" :class="{ 'sts-info-on': breakOn }">BREAK</div>
+        <div class="sts-window sts-alarm-off" :class="{ 'sts-alarm-on': breakOn }">BREAK</div>
         <div class="sts-window sts-info-off" :class="{ 'sts-info-on': waitOn }">WAIT</div>
         <div class="sts-window sts-info-on">{{ mapType }}</div>
     </div>
@@ -20,9 +20,14 @@ const mapType = computed(() => store.map_type)
 
 <style scoped>
 
+.sts-box {
+    display: flex;
+    flex-direction: row;
+}
+
 .sts-window {
     border: solid 1px white;
-    width: 150px;
+    width: 100px;
     padding: 10px;
     justify-content: center;
     text-align: center;
@@ -34,7 +39,7 @@ const mapType = computed(() => store.map_type)
 }
 
 .sts-info-on {
-    background-color: #292;
+    background-color: #2A2;
     color: white;
 }
 
@@ -43,8 +48,8 @@ const mapType = computed(() => store.map_type)
     color: white;
 }
 
-.cc-alarm-on {
-    background-color: #922;
+.sts-alarm-on {
+    background-color: #A22;
     color: white;
 }
 

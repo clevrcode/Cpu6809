@@ -13,24 +13,24 @@
         <div class="control-panel">
             <div class="status-panel">
                 <ConditionCode :value="store.registers?.CC"></ConditionCode>
-                <StatusBar></StatusBar>
-                <BreakpointList></BreakpointList>
+                <!-- <BreakpointList></BreakpointList> -->
             </div>
-            <ControlButton @click="update">Get Registers</ControlButton>
+            <!-- <ControlButton @click="update">Get Registers</ControlButton> -->
             <div class="button-bar">
+                <StatusBar></StatusBar>
                 <ControlButtonBar @reset="reset" @run="run" @stop="stop" @step="step" @stepover="stepover"/>
             </div>
         </div>
         <div class="control-panel">
             <Registers @update="openForm"></Registers>
-            <CrtDisplay></CrtDisplay>  
+            <CrtDisplay @command="sendCommand"></CrtDisplay>  
+            <BreakpointList></BreakpointList>
         </div>
     </div>
 </template>
 
 <script setup>
 
-    const cpuRunning = ref(false)
     const store = useMainStore()
 
     const showRegForm = ref(false)
@@ -38,17 +38,29 @@
     const regFormValue = ref(0)
     const regValSize = ref(16)
 
-    function openForm(name) {
-        showRegForm.value = true
+    let timerId = 0
+
+    async function sendCommand(cmd) {
+        try {
+            await store.sendCommand(cmd)
+            runOnce()
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+    function openForm(name, size) {
+        showRegForm.value = !showRegForm.value
         regFormName.value = name
         regFormValue.value = store.registers[name]
+        regValSize.value = size
     }
 
     function canClose() {
         showRegForm.value = false
     }
     function submitRequest(name, value) {
-        console.log(`submit request ${name}: ${value}`)
+        console.log(`submit request ${name}: ${value} ${value.toString(16)}`)
         canClose()
     }
 
@@ -58,57 +70,49 @@
     }
 
     function run() {
-        if (!cpuRunning.value) {
-            cpuRunning.value = true
-            runOnce()
-        }
+        runOnce()
     }
 
     async function runOnce()
     {
         try {
-            // Your existing code that might throw an error
-            // For example:
-            // const result = someUndefinedFunction();
-            // Or a network request that fails
             await store.run("200")
             await store.updateDisplay()
-            if (!store.break_active && cpuRunning.value) {
-                console.log("reschedule cpu run")
-                setTimeout(runOnce, 100)
+            if (!store.break_active && !store.wait) {
+                timerId = setTimeout(runOnce, 50)
             } else {
-                console.log("stop cpu run")
-                cpuRunning.value = false
-            }
+                await store.getModuleList()
+           }
         } catch (error) {
             console.error("An error occurred during 'run':", error);
-            cpuRunning.value = false
-            // Optionally, display a user-friendly message or perform other error handling
+            timerId = 0
         }
     }        
     
     function stop() {
-        cpuRunning.value = false
+        if (timerId != 0) {
+            clearTimeout(timerId)
+            timerId = 0
+        }
+        store.cpubreak()
     }
     
     function step() {
         store.step()
-        updateDisplay()
+        store.updateDisplay()
     }
     
     function stepover() {
         store.stepover()
-        updateDisplay()
+        store.updateDisplay()
     }
 
     function reset() {
-        console.log("reset")
         store.reset()
         store.updateDisplay()
     }
 
     onMounted(() => {
-        console.log("Main Page Mounted")
         update()
         store.getBreakpoints()
     })
@@ -130,12 +134,12 @@ h1 {
 .control-panel {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    /* justify-content: space-between; */
 }
 
 .button-bar {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
 }
 
 .register-form {

@@ -25,7 +25,11 @@ function stop() {
 }
 
 function step() {
-    emit('step')
+    try {
+        emit('step')
+    } catch (err) {
+        console.log(err)
+    }
 }
 
 function stepover() {

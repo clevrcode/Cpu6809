@@ -1,10 +1,19 @@
 <template>
     <div class="form-box">
         <div class="form-register_name">Register: {{ name }}</div>
-        <div class="form-register_value">{{ hex_value }}</div>
-        <input type="text">
-        <ControlButton @click="submit">APPLY</ControlButton>
-        <ControlButton @click="cancel">CANCEL</ControlButton>
+        <div class="form-values">
+            <div class="form-register_value">{{ hex_value }}</div>
+            <div class="form-register_value">{{ dec_value }}</div>
+            <BitSelector :value :size @toggle="toggleBit"></BitSelector>
+        </div>
+        <div class="form-input">
+            <input type="text" pattern="[a-fA-F0-9]{1,5}" v-model.trim="new_value">
+            <span class="validity"></span>
+        </div>
+        <div class="button-bar">
+            <ControlButton @click="submit">APPLY</ControlButton>
+            <ControlButton @click="cancel">CANCEL</ControlButton>
+        </div>
     </div>
 </template>
 
@@ -31,11 +40,25 @@ function format_value(val, radix, width) {
     return val.toString(radix).padStart(width, '0').toUpperCase()
 }
 
+const in_value = ref(props.value)
+const new_value = computed(() => format_value(in_value.value, 16, 4))
 const hex_value = computed(() => format_value(props.value, 16, 4))
+const dec_value = computed(() => format_value(props.value, 10, 0))
+
+function toggleBit(bit) {
+    try {
+        console.log(`toggle bit ${bit}`)
+        const mask = 1 << (props.size - bit - 1)
+        console.log(`mask: ${mask}`)
+        in_value.value = in_value.value ^ mask
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 function submit() {
-    console.log('submit')
-    emit('submit', props.name, props.value)
+    console.log(`>>>submit: ${in_value.value} ${in_value.value.toString(16)}`)
+    emit('submit', props.name, in_value.value)
 }
 
 function cancel() {
@@ -59,8 +82,45 @@ function cancel() {
     font-size: 3rem;
     padding: 20px 0;
 }
+
+.form-values {
+    display: flex;
+    flex-direction: row;
+}
+
 .form-register_value {
-    font-size: 2rem;;
+    font-size: 2rem;
+    padding: 0 40px 0 0;
+}
+
+.form-input {
+    padding: 15px 0;
+}
+
+.button-bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.form-input {
+  margin-bottom: 10px;
+  position: relative;
+}
+
+input + span {
+  padding-right: 30px;
+}
+input:invalid + span::after {
+  position: absolute;
+  content: "✖";
+  padding-left: 5px;
+}
+
+input:valid + span::after {
+  position: absolute;
+  content: "✓";
+  padding-left: 5px;
 }
 
 </style>

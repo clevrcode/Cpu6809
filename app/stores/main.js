@@ -12,6 +12,7 @@ export const useMainStore = defineStore('main', () => {
     const display_type = ref("")
     const display_size = ref({ x: 0, y: 0 })
     const breakpoints = ref([])
+    const modules = ref([])
 
 
     function setRegisters(reg) {
@@ -49,7 +50,7 @@ export const useMainStore = defineStore('main', () => {
             console.log(error)
             throw error
         }
-    }
+    } 
 
     async function getBreakpoints() {
         try {
@@ -57,6 +58,18 @@ export const useMainStore = defineStore('main', () => {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const response = await $fetch(url, { headers })
             breakpoints.value = response.breakpoints
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
+    async function getModuleList() {
+        try {
+            const url = useRuntimeConfig().public.api_url + "/modules"
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const response = await $fetch(url, { headers })
+            modules.value = response.modules
         } catch (error) {
             console.log(error)
             throw error
@@ -92,9 +105,20 @@ export const useMainStore = defineStore('main', () => {
             throw error
         }
     }
+
+    async function cpubreak() {
+        try {
+            const url = useRuntimeConfig().public.api_url + "/break"
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const response = await $fetch(url, { method: 'PUT', headers })
+            setRegisters(response)
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
   
     async function step() {
-        console.log("entering store.step()")
         try {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const url = useRuntimeConfig().public.api_url + "/step"
@@ -107,7 +131,6 @@ export const useMainStore = defineStore('main', () => {
     }
 
     async function stepover() {
-        console.log("entering store.stepover()")
         try {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const url = useRuntimeConfig().public.api_url + "/stepover"
@@ -120,12 +143,30 @@ export const useMainStore = defineStore('main', () => {
     }
 
     async function reset() {
-        console.log("store.reset()")
         try {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const url = useRuntimeConfig().public.api_url + "/reset"
-            console.log(`url: ${url}`)
             const response = await $fetch(url, { method: 'PUT', headers})
+            setRegisters(response)
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
+    async function sendCommand(command) {
+        try {
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const url = useRuntimeConfig().public.api_url + "/input"
+            const response = await $fetch(url, 
+                { 
+                    method: 'POST', 
+                    headers,
+                    query: {
+                        command
+                    }
+                }
+            )
             setRegisters(response)
         } catch (error) {
             console.log(error)
@@ -144,11 +185,15 @@ export const useMainStore = defineStore('main', () => {
         halted,
         map_type,
         breakpoints,
+        modules,
         getRegisters,
+        getModuleList,
         updateDisplay,
         getBreakpoints,
         addBreakpoint,
+        sendCommand,
         run,
+        cpubreak,
         step,
         stepover,
         reset

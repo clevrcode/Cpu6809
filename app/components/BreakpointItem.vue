@@ -1,6 +1,6 @@
 <template>
     <div class="brkpt-item">
-        <div class="brkpt-checkbox"><input type="checkbox" id="enabled" name="enabled" :checked="enabled" @click="check"/></div>
+        <div class="brkpt-checkbox"><input type="checkbox" id="enabled" name="enabled" :checked="checked" @change="check"/></div>
         <div class="brkpt-address">0x{{ hex_address }}</div>
     </div>
 </template>
@@ -20,10 +20,13 @@ const props = defineProps({
     }
 })
 
+const checked = ref(props.enabled)
 const hex_address = computed(() => props.address.toString(16).padStart(4, '0').toUpperCase())
 
-function check() {
-    emit('toggle-enable', props.address, !props.enabled)
+function check(ev) {
+    checked.value = !checked.value
+    // console.log(`checkbox changed [${checked.value}]`)
+    emit('toggle-enable', props.address, checked.value)
 }
 
 </script>
@@ -33,7 +36,7 @@ function check() {
 .brkpt-item {
     display: flex;
     flex-direction: row;
-    background-color: aquamarine;
+    background-color: #f99a08;
     color: black;
     padding: 5px;
 }

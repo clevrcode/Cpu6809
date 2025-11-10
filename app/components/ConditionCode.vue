@@ -58,7 +58,7 @@ const irqOn      = computed(() => {
 }
 
 .cc-info-on {
-    background-color: #292;
+    background-color: #2A2;
     color: white;
 }
 
@@ -68,7 +68,7 @@ const irqOn      = computed(() => {
 }
 
 .cc-irq-on {
-    background-color: #922;
+    background-color: #A22;
     color: white;
 }
 

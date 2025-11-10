@@ -1,35 +1,43 @@
 <template>
-    <div class="header">
+    <div class="header orbitron-header">
         <h2>CPU 6809 Debugger</h2>
-        <nav class="header-nav">
-            <li class="header-nav_item">
-                <NuxtLink to="/">Control Panel</NuxtLink>                
-            </li>
-            <li class="header-nav_item">
-                <NuxtLink to="/debugger">Debugger</NuxtLink>
-            </li>
-        </nav>
     </div>
+    <nav class="header-nav">
+        <li class="header-nav_item">
+            <NuxtLink to="/">Control Panel</NuxtLink>                
+        </li>
+        <li class="header-nav_item">
+            <NuxtLink to="/debugger">Debugger</NuxtLink>
+        </li>
+    </nav>
 </template>
 
 <script setup>
 
 </script>
- 
+
 <style scoped>
 
 .header h2 {
-    margin: 0;
+    margin: 0; 
+}
+
+.orbitron-header h2 {
+    font-family: "Orbitron", sans-serif;
+    /* font-optical-sizing: auto; */
+    font-size: 2.5rem;
+    font-weight: 400;
+    font-style: normal;
 }
 
 .header {
-    background-color: black;
+    background-color: #fb660c;
     color: white;
     padding: 5px;
 }
 
 .header-nav {
-    /* font-family: 'Julius Sans One'; */
+    background-color: black;;
     font-weight: 300;
     font-style: normal;
 }

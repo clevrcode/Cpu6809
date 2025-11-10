@@ -13,6 +13,7 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxt/icon',
+    '@nuxt/fonts',
     '@pinia/nuxt'
   ]
 
