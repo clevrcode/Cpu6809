@@ -1,32 +1,34 @@
 <template>
     <div class="brkpt-item">
         <div class="brkpt-checkbox"><input type="checkbox" id="enabled" name="enabled" :checked="checked" @change="check"/></div>
-        <div class="brkpt-address">0x{{ hex_address }}</div>
+        <label for="enabled">{{ breakpoint.strAddress }}</label>
+        <button @click="deleteBreakpoint">
+            <IconsDelete></IconsDelete>
+        </button>
     </div>
 </template>
 
 <script setup>
 
-const emit = defineEmits(['toggle-enable'])
+const emit = defineEmits(['toggle-enable', 'delete'])
 
 const props = defineProps({
-    address: {
-        type: Number,
-        required: true
-    },
-    enabled: {
-        type: Boolean,
+    breakpoint: {
+        type: Object,
         required: true
     }
 })
 
-const checked = ref(props.enabled)
-const hex_address = computed(() => props.address.toString(16).padStart(4, '0').toUpperCase())
+const checked = ref(props.breakpoint.enable)
 
-function check(ev) {
+function check() {
     checked.value = !checked.value
-    // console.log(`checkbox changed [${checked.value}]`)
-    emit('toggle-enable', props.address, checked.value)
+    emit('toggle-enable', props.breakpoint.address, checked.value)
+}
+
+function deleteBreakpoint() {
+    console.log('delete breakpoint...')
+    emit('delete', props.breakpoint.address)
 }
 
 </script>
@@ -36,6 +38,7 @@ function check(ev) {
 .brkpt-item {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     background-color: #f99a08;
     color: black;
     padding: 5px;

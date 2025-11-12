@@ -1,8 +1,8 @@
 <template>
-    <div class="crt-screen" :class="{ coco: isCoco }">
-        <div class="display-line" v-for="line of displayContent">
-             <pre>{{ line }}</pre>
-        </div>
+    <div>
+        <canvas ref="crt" id="crtscreen" width="800" height="500">
+            Unsupported browser
+        </canvas>
         <div class="crt-input">
             <input type="text" placeholder="command" spellcheck="false" @keydown="dataInput" v-model="command">
         </div>        
@@ -12,7 +12,6 @@
 <script setup>
 
 import {Buffer} from 'buffer'
-
 const store = useMainStore()
 const emit = defineEmits(['command'])
 
@@ -21,6 +20,7 @@ const displayContent = ref([])
 
 const isCoco = computed(() => store.display_type === "COCO")
 const memory = computed(() => store.display)
+const crt = useTemplateRef("crt")
 
 const cocoCharMap = [
 	'@', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',  // 0x00-0x0f
@@ -33,6 +33,44 @@ const cocoCharMap = [
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?'   // 0x70-0x7f
 ];
 
+function fillBackgroundColor(canvas, context, bgcolor) {
+    context.fillStyle = bgcolor;
+    context.fillRect(0, 0, canvas.width, canvas.height)
+}
+
+function getDisplayParams() {
+    if (isCoco.value) {
+        return { width: 32, height: 16, bg: "green", fg: "black", font: "2.5em Courier", line_spacing: 31 }
+    }
+    return { width: 80, height: 24, bg: "black", fg: "#0f0", font: "1.0em Courier", line_spacing: 20 }
+}
+
+function draw() {
+    // const line = isCoco.value ? "ABCDEFGHIJKLMNOPQRSTUVWXYZ012345" : "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDAAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDD"
+    const context = crt.value.getContext("2d")
+    const params = getDisplayParams()
+    fillBackgroundColor(crt.value, context, params.bg)
+    context.font = params.font
+    context.textAlign = "left"
+    context.fillStyle = params.fg
+    const nb_lines = params.height
+    let pos_y = params.line_spacing
+    for (let i=0; i < nb_lines; i++) {
+        if (i < displayContent.value.length) {
+            context.fillText(displayContent.value[i], 15, pos_y)
+            pos_y += params.line_spacing
+        }
+    }
+}
+
+onMounted(() => {
+    try {
+        draw()
+    } catch (error) {
+        console.log(error)
+    }
+})
+
 function dataInput(ev) {
     if (ev.key === "Enter") {
         let b64cmd = btoa(command.value + "\r")
@@ -44,7 +82,7 @@ function dataInput(ev) {
 watch(memory, (newDisplay, _) => {
     let disp = []
     try {
-        // console.log("update display...")
+        console.log("update display...")
         const data = Buffer.from(newDisplay, 'base64')
         if (store.display_type === "COCO") {
             for (let i=0; i < store.display_size.y; i++) {
@@ -68,32 +106,15 @@ watch(memory, (newDisplay, _) => {
         console.log(error)
     }
     displayContent.value = disp
+    draw()
 })
 
 </script>
 
 <style scoped>
 
-.crt-screen {
-    border: solid 5px #777;
-    width: 800px;
-    height: 600px;
-    background-color: black;
-    color: #0D0;
-    font-family:'Courier New', Courier, monospace;
-    font-size: 1.0rem;
-    overflow: hidden;
-    /* margin: 20px */
-}
-
-.coco {
-    font-size: 2.0rem;
-    background-color: green;
-    color: black;
-}
-
-.display-line {
-    height: 5px;
+canvas {
+    border: 5px solid #777;
 }
 
 .crt-input input {

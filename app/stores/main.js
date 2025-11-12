@@ -88,6 +88,25 @@ export const useMainStore = defineStore('main', () => {
                     enable: payload.enable
                 }
              })
+            breakpoints.value = response.breakpoints
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
+    async function deleteBreakpoint(address) {
+        try {
+            const url = useRuntimeConfig().public.api_url + "/breakpoint"
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const response = await $fetch(url, { 
+                method: 'DELETE',
+                headers,
+                query: {
+                    address: address,
+                }
+             })
+            breakpoints.value = response.breakpoints
         } catch (error) {
             console.log(error)
             throw error
@@ -191,6 +210,7 @@ export const useMainStore = defineStore('main', () => {
         updateDisplay,
         getBreakpoints,
         addBreakpoint,
+        deleteBreakpoint,
         sendCommand,
         run,
         cpubreak,

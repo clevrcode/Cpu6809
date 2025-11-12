@@ -23,7 +23,8 @@
         </div>
         <div class="control-panel">
             <Registers @update="openForm"></Registers>
-            <CrtDisplay @command="sendCommand"></CrtDisplay>  
+            <!-- <CrtDisplay @command="sendCommand"></CrtDisplay>   -->
+            <CrtCanvas @command="sendCommand"></CrtCanvas>
             <BreakpointList></BreakpointList>
         </div>
     </div>

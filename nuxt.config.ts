@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   $development: {
     runtimeConfig: {
       public: {
+        src_url: 'http://localhost:3000/sources',
         api_url: 'http://127.0.0.1:8080'
       }
     }
