@@ -1,30 +1,70 @@
 <template>
-    <div class="debug-line" :class="{selected}" @click="toggle">
-        <div class="brkpt">X</div>
-        <div class="addr">{{ addr }}</div>
-        <div class="code">{{ code }}</div>
-        <div class="filename">{{ filename }}</div>
-        <div class="opcode">{{ opcode }}</div>
-        <div class="comments">{{ comments }}</div>
+    <div v-if="line_comment">
+        <div class="debug-line-comment" :class="{selected}" @click="toggle">
+            <div v-if="brkptline" >
+                <IconsBreakpoint />
+            </div>
+            <div v-else>
+                <div class="brkpt"> </div>
+            </div>
+            <div class="addr">{{ addr }}</div>
+            <div class="code">{{ code }}</div>
+            <div class="filename">{{ filename }}</div>
+            <div class="comments">{{ comments }}</div>
+        </div>        
     </div>
+    <div v-else>
+        <div class="debug-line-code" :class="{selected}" @click="toggle">
+            <div v-if="brkptline" >
+                <IconsBreakpoint />
+            </div>
+            <div v-else>
+                <div class="brkpt"> </div>
+            </div>
+            <div class="addr">{{ addr }}</div>
+            <div class="code">{{ code }}</div>
+            <div class="filename">{{ filename }}</div>
+            <div class="label">{{ label }}</div>
+            <div class="opcode">{{ opcode }}</div>
+            <!-- <div class="operand">{{ operand }}</div> -->
+            <!-- <div class="comments">{{ comments }}</div> -->
+        </div>        
+    </div>
+     
 </template>
 
 <script setup>
 
+const store = useMainStore()
+
 const props = defineProps({
     line: {
-        type: Array,
+        type: Object,
         required: true
     }
 })
 
-const addr = computed(() => props.line[1])
-const code = computed(() => props.line[2])
+const addr = computed(() => props.line.address)
+const code = computed(() => props.line.code)
 // const filename = computed(() => `${props.line[3]}:${props.line[4]}`)
-const filename = computed(() => props.line[4])
-const opcode = computed(() => props.line[5])
-const comments = computed(() => props.line[6])
+const filename = computed(() => props.line.file + ":" + props.line.line)
+const label = computed(() => props.line.opcode.label)
+const opcode = computed(() => props.line.opcode.opcode)
+const operand = computed(() => props.line.opcode.operand)
+const comments = computed(() => props.line.opcode.comment)
+
+const brkptline = computed(() => {
+    if (props.line.address.length == 4) {
+        return store.isBreakpoint(parseInt(props.line.address, 16))
+    }
+    return false
+})
+
 const selected = ref(false)
+
+const line_comment = computed(() => {
+    return (props.line.opcode.label === "") && (props.line.opcode.opcode === "") && (props.line.opcode.operand === "")
+})
 
 function toggle() {
     selected.value = !selected.value
@@ -34,11 +74,24 @@ function toggle() {
 
 <style scoped>
 
-.debug-line {
+.debug-line-comment {
     display: grid;
-    grid-template-columns: 2rem 3rem 10rem 4rem auto auto ;
-    grid-template-areas: 'brkpt addr code filename opcode comments';
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 400;
+    grid-template-columns: 2rem 3rem 10rem 12rem auto;
+    grid-template-areas: 'brkpt addr code filename comment';
 }
+
+.debug-line-code {
+    display: grid;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 400;
+    /* grid-template-columns: 2rem 3rem 10rem 12rem 6rem 6rem 6rem auto ;
+    grid-template-areas: 'brkpt addr code filename label opcode comment'; */
+    grid-template-columns: 2rem 3rem 10rem 12rem 6rem auto ;
+    grid-template-areas: 'brkpt addr code filename label opcode';
+}
+
 
 .selected {
     background-color: aqua;

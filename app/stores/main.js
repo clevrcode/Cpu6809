@@ -14,6 +14,14 @@ export const useMainStore = defineStore('main', () => {
     const breakpoints = ref([])
     const modules = ref([])
 
+    function isBreakpoint(addr) {
+        for (let brk of breakpoints.value) {
+            if (addr == brk.address)
+                return true
+        }
+        return false
+    }
+
 
     function setRegisters(reg) {
         registers.value = reg.registers
@@ -23,7 +31,6 @@ export const useMainStore = defineStore('main', () => {
         wait.value = reg.wait
         halted.value = reg.halted
     }
-
 
     async function getRegisters() {
         try {
@@ -205,6 +212,7 @@ export const useMainStore = defineStore('main', () => {
         map_type,
         breakpoints,
         modules,
+        isBreakpoint,
         getRegisters,
         getModuleList,
         updateDisplay,
