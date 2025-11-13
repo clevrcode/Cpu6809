@@ -44,6 +44,23 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
+    async function setRegister(payload) {
+        try {
+            const url = useRuntimeConfig().public.api_url + "/register" 
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const response = await $fetch(url, 
+                { 
+                    method: 'PUT',
+                    headers,
+                    query: payload                        
+                 })
+            setRegisters(response)
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
     async function updateDisplay() {
         try {
             const url = useRuntimeConfig().public.api_url + "/display" 
@@ -214,6 +231,7 @@ export const useMainStore = defineStore('main', () => {
         modules,
         isBreakpoint,
         getRegisters,
+        setRegister,
         getModuleList,
         updateDisplay,
         getBreakpoints,

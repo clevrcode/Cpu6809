@@ -42,6 +42,7 @@ function deleteBreakpoint() {
     background-color: #f99a08;
     color: black;
     padding: 5px;
+    border: solid 1px black;
 }
 
 </style>

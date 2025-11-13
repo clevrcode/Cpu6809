@@ -1,33 +1,33 @@
 <template>
     <div v-if="line_comment">
         <div class="debug-line-comment" :class="{selected}" @click="toggle">
-            <div v-if="brkptline" >
+            <div class="brkpt" v-if="brkptline" >
                 <IconsBreakpoint />
             </div>
-            <div v-else>
-                <div class="brkpt"> </div>
+            <div class="brkpt" v-else>
+                <div>=</div>
             </div>
             <div class="addr">{{ addr }}</div>
             <div class="code">{{ code }}</div>
             <div class="filename">{{ filename }}</div>
-            <div class="comments">{{ comments }}</div>
+            <div class="comments"><pre>{{ comments }}</pre></div>
         </div>        
     </div>
     <div v-else>
         <div class="debug-line-code" :class="{selected}" @click="toggle">
-            <div v-if="brkptline" >
+            <div class="brkpt" v-if="brkptline" >
                 <IconsBreakpoint />
             </div>
-            <div v-else>
-                <div class="brkpt"> </div>
+            <div class="brkpt" v-else>
+                <div>#</div>
             </div>
             <div class="addr">{{ addr }}</div>
             <div class="code">{{ code }}</div>
             <div class="filename">{{ filename }}</div>
             <div class="label">{{ label }}</div>
             <div class="opcode">{{ opcode }}</div>
-            <!-- <div class="operand">{{ operand }}</div> -->
-            <!-- <div class="comments">{{ comments }}</div> -->
+            <div class="operand">{{ operand }}</div>
+            <div class="comments">{{ comments }}</div>
         </div>        
     </div>
      
@@ -78,23 +78,38 @@ function toggle() {
     display: grid;
     font-family: 'Courier New', Courier, monospace;
     font-weight: 400;
-    grid-template-columns: 2rem 3rem 10rem 12rem auto;
-    grid-template-areas: 'brkpt addr code filename comment';
+    grid-template-columns: 1rem 3rem 10rem 20rem auto;
+    grid-template-areas: 'brkpt addr code filename comments';
 }
 
 .debug-line-code {
     display: grid;
     font-family: 'Courier New', Courier, monospace;
     font-weight: 400;
-    /* grid-template-columns: 2rem 3rem 10rem 12rem 6rem 6rem 6rem auto ;
-    grid-template-areas: 'brkpt addr code filename label opcode comment'; */
-    grid-template-columns: 2rem 3rem 10rem 12rem 6rem auto ;
-    grid-template-areas: 'brkpt addr code filename label opcode';
+    grid-template-columns: 1rem 3rem 10rem 20rem 6rem 6rem 20rem auto;
+    grid-template-areas: 'brkpt addr code filename label opcode operand comments';
 }
 
 
 .selected {
     background-color: aqua;
 }
+
+.brkpt {
+    background-color: white;
+}
+
+.opcode {
+    color: purple;
+}
+
+.operand {
+    color: blue;
+}
+.comments pre {
+    display: inline;
+    color: green;
+}
+
 
 </style>

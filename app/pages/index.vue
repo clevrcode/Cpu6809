@@ -60,8 +60,10 @@
     function canClose() {
         showRegForm.value = false
     }
-    function submitRequest(name, value) {
+    
+    async function submitRequest(name, value) {
         console.log(`submit request ${name}: ${value} ${value.toString(16)}`)
+        await store.setRegister({ name, value })
         canClose()
     }
 
@@ -83,6 +85,7 @@
                 timerId = setTimeout(runOnce, 50)
             } else {
                 await store.getModuleList()
+                timerId = 0
            }
         } catch (error) {
             console.error("An error occurred during 'run':", error);
