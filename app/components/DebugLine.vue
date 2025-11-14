@@ -14,11 +14,11 @@
         </div>        
     </div>
     <div v-else>
-        <div class="debug-line-code" :class="{selected}" @click="toggle">
-            <div class="brkpt" v-if="brkptline" >
+        <div class="debug-line-code" :class="{selected: brkptline}">
+            <div class="brkpt" v-if="brkptline" @click="toggle">
                 <IconsBreakpoint />
             </div>
-            <div class="brkpt" v-else>
+            <div class="brkpt" v-else @click="toggle">
                 <div>#</div>
             </div>
             <div class="addr">{{ addr }}</div>
@@ -52,13 +52,21 @@ const label = computed(() => props.line.opcode.label)
 const opcode = computed(() => props.line.opcode.opcode)
 const operand = computed(() => props.line.opcode.operand)
 const comments = computed(() => props.line.opcode.comment)
+const brkptline = ref(false)
 
-const brkptline = computed(() => {
+
+function testBreakpoint() {
     if (props.line.address.length == 4) {
-        return store.isBreakpoint(parseInt(props.line.address, 16))
+        const addr = parseInt(props.line.address, 16)
+        brkptline.value = store.isBreakpoint(addr)
     }
-    return false
+}
+
+onMounted(() => {
+    testBreakpoint()
 })
+
+watch(store.breakpoints, () => testBreakpoint())
 
 const selected = ref(false)
 
@@ -67,7 +75,7 @@ const line_comment = computed(() => {
 })
 
 function toggle() {
-    selected.value = !selected.value
+    console.log("toggle breakpoint TODO")
 }
 
 </script>
@@ -78,7 +86,7 @@ function toggle() {
     display: grid;
     font-family: 'Courier New', Courier, monospace;
     font-weight: 400;
-    grid-template-columns: 1rem 3rem 10rem 20rem auto;
+    grid-template-columns: 1rem 3rem 10rem 15rem auto;
     grid-template-areas: 'brkpt addr code filename comments';
 }
 
@@ -86,17 +94,18 @@ function toggle() {
     display: grid;
     font-family: 'Courier New', Courier, monospace;
     font-weight: 400;
-    grid-template-columns: 1rem 3rem 10rem 20rem 6rem 6rem 20rem auto;
+    grid-template-columns: 1rem 3rem 10rem 15rem 6rem 6rem 20rem auto;
     grid-template-areas: 'brkpt addr code filename label opcode operand comments';
 }
 
 
 .selected {
-    background-color: aqua;
+    background-color: lightpink;
 }
 
 .brkpt {
     background-color: white;
+    cursor: pointer;
 }
 
 .opcode {

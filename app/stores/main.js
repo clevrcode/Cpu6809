@@ -13,13 +13,42 @@ export const useMainStore = defineStore('main', () => {
     const display_size = ref({ x: 0, y: 0 })
     const breakpoints = ref([])
     const modules = ref([])
+    const current_module = ref("")
+    const current_source = ref("")
+    const base_address = ref(0)
+    const source_base = ref(0)
 
     function isBreakpoint(addr) {
         for (let brk of breakpoints.value) {
-            if (addr == brk.address)
+            if ((addr + source_base.value) == brk.address)
                 return true
         }
         return false
+    }
+
+    function setCurrentModule() {
+        const module = modules.value.find((mod) => registers.value.PC >= mod.start && registers.value.PC < mod.end)
+        if (module) {
+            current_module.value = module.name
+            base_address.value = module.start
+            console.log(`module: ${current_module.value} base address ${base_address.value}`)
+        } else {
+            current_module.value = ""
+            base_address.value = 0
+        }
+    }
+
+    function setSourceBase(source) {
+        console.log(`set source: ${source}`)
+        const module = modules.value.find((mod) => mod.name === source)
+        if (module) {
+            current_source.value = source
+            source_base.value = module.start
+        } else {
+            current_source.value = ""
+            source_base.value = 0
+        }
+        console.log(`source: ${current_source.value}, base: ${source_base.value}`)
     }
 
 
@@ -30,6 +59,9 @@ export const useMainStore = defineStore('main', () => {
         break_active.value = reg.break
         wait.value = reg.wait
         halted.value = reg.halted
+        if (map_type.value === "RAM") {
+            setCurrentModule()
+        }
     }
 
     async function getRegisters() {
@@ -94,6 +126,7 @@ export const useMainStore = defineStore('main', () => {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const response = await $fetch(url, { headers })
             modules.value = response.modules
+            setCurrentModule()
         } catch (error) {
             console.log(error)
             throw error
@@ -229,9 +262,13 @@ export const useMainStore = defineStore('main', () => {
         map_type,
         breakpoints,
         modules,
+        current_module,
+        current_source,
+        base_address,
         isBreakpoint,
         getRegisters,
         setRegister,
+        setSourceBase,
         getModuleList,
         updateDisplay,
         getBreakpoints,

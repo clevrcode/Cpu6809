@@ -104,16 +104,19 @@
     function step() {
         store.step()
         store.updateDisplay()
+        store.getModuleList()
     }
     
     function stepover() {
         store.stepover()
         store.updateDisplay()
+        store.getModuleList()
     }
 
     function reset() {
         store.reset()
         store.updateDisplay()
+        store.getModuleList()
     }
 
     onMounted(() => {
