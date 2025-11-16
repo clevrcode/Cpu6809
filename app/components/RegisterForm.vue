@@ -1,5 +1,5 @@
 <template>
-    <div class="form-box">
+    <GenericForm @submit="submitForm">
         <div class="form-register_name">Register: {{ name }}</div>
         <div class="form-values">
             <div class="form-register_value">{{ hex_value }}</div>
@@ -10,16 +10,12 @@
             <input type="text" pattern="[a-fA-F0-9]{1,5}" v-model.trim="new_value">
             <span class="validity"></span>
         </div>
-        <div class="button-bar">
-            <ControlButton @click="submit">APPLY</ControlButton>
-            <ControlButton @click="cancel">CANCEL</ControlButton>
-        </div>
-    </div>
+    </GenericForm>
 </template>
 
 <script setup>
 
-const emit = defineEmits(['submit', 'cancel'])
+const emit = defineEmits(['submit'])
 
 const props = defineProps({
     name: {
@@ -47,36 +43,27 @@ const dec_value = computed(() => format_value(props.value, 10, 0))
 
 function toggleBit(bit) {
     try {
-        console.log(`toggle bit ${bit}`)
         const mask = 1 << (props.size - bit - 1)
-        console.log(`mask: ${mask}`)
         in_value.value = in_value.value ^ mask
     } catch (err) {
         console.log(err)
     }
 }
 
-function submit() {
-    console.log(`>>>submit: ${in_value.value} ${in_value.value.toString(16)}`)
+function submitForm() {
+    console.log(`>>>submit: ${props.name} ${in_value.value} ${in_value.value.toString(16)}`)
     emit('submit', props.name, in_value.value)
 }
 
-function cancel() {
-    console.log('cancel')
-    emit('cancel')
-}
-
+// function cancel() {
+//     console.log('cancel')
+//     emit('cancel')
+// }
 
 </script>
 
 <style scoped>
 
-.form-box {
-    background-color: lightgray;
-    padding: 20px;
-    border: solid 3px black;
-    border-radius: 20px;;
-}
 
 .form-register_name {
     font-size: 3rem;
@@ -97,11 +84,10 @@ function cancel() {
     padding: 15px 0;
 }
 
-.button-bar {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+.form-input input {
+    font-size: 2rem;
 }
+
 
 .form-input {
   margin-bottom: 10px;

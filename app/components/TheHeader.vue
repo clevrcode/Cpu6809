@@ -1,13 +1,17 @@
 <template>
-    <div class="header orbitron-header">
-        <h2>CPU 6809 Debugger</h2>
+    <div class="header">
+        <div class="header_title">
+            CPU 6809 Debugger
+        </div>
+        <div class="header_bar">
+        </div>
     </div>
     <nav class="header-nav">
         <li class="header-nav_item">
-            <NuxtLink to="/">Control Panel</NuxtLink>                
+            <NuxtLink to="/">Console</NuxtLink>                
         </li>
         <li class="header-nav_item">
-            <NuxtLink to="/debugger">Debugger</NuxtLink>
+            <NuxtLink to="/debugger">Source</NuxtLink>
         </li>
     </nav>
 </template>
@@ -18,22 +22,28 @@
 
 <style scoped>
 
-.header h2 {
-    margin: 0; 
+.header {
+    margin: 0;
+    padding: 0;
 }
 
-.orbitron-header h2 {
+.header_title {
     font-family: "Orbitron", sans-serif;
     /* font-optical-sizing: auto; */
     font-size: 2.5rem;
     font-weight: 400;
     font-style: normal;
-}
-
-.header {
     background-color: #fb660c;
     color: white;
-    padding: 5px;
+    border-bottom: solid 2px white;
+    width: 100%;
+    padding: 0 10px;
+}
+.header_bar {
+    background-color: #f99a08;
+    height: 20px;
+    padding: 0;
+    margin: 0;
 }
 
 .header-nav {
@@ -73,6 +83,5 @@ a.router-link-active {
     background-position: 100% 100%; /*OR bottom right*/
     background-size: 100% 1px;    
 }
-
 
 </style>

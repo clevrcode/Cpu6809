@@ -22,12 +22,12 @@ const mapType = computed(() => store.map_type)
 
 .sts-box {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
 }
 
 .sts-window {
     border: solid 1px white;
-    width: 100px;
+    width: 150px;
     padding: 10px;
     justify-content: center;
     text-align: center;

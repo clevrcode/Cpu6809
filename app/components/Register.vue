@@ -1,20 +1,11 @@
 <template>
     <div class="reg-window" >
-        <div class="reg-name" @click="update">{{ name }}</div>
+        <div class="reg-name">{{ name }}</div>
         <div class="reg-value" :class="{ 'wide-box': large, modified }">{{ hex_value }}</div>
     </div>
 </template>
 
 <script setup>
-
-// const emit = defineEmits(['update'])
-
-const emit = defineEmits(['update'])
-
-function update() {
-    console.log("click update")
-    emit('update', props.name)
-}
 
 const props = defineProps({
     name: {
@@ -62,7 +53,7 @@ const hex_value = computed(() => {
 }
 
 .reg-name {
-    border: solid 1px;
+    border: solid 1px white;
     background-color: #f99a08;
     width: 50px;
     padding: 10px;

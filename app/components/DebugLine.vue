@@ -1,10 +1,7 @@
 <template>
     <div v-if="line_comment">
-        <div class="debug-line-comment" :class="{selected}" @click="toggle">
-            <div class="brkpt" v-if="brkptline" >
-                <IconsBreakpoint />
-            </div>
-            <div class="brkpt" v-else>
+        <div class="debug-line-comment" :class="{fanfold}">
+            <div class="brkpt">
                 <div>=</div>
             </div>
             <div class="addr">{{ addr }}</div>
@@ -14,11 +11,11 @@
         </div>        
     </div>
     <div v-else>
-        <div class="debug-line-code" :class="{selected: brkptline}">
-            <div class="brkpt" v-if="brkptline" @click="toggle">
+        <div class="debug-line-code" :class="{fanfold, brkpt_active: brkptline, current_line: currline}">
+            <div class="brkpt" :class="{canset}" v-if="brkptline" @click="toggle">
                 <IconsBreakpoint />
             </div>
-            <div class="brkpt" v-else @click="toggle">
+            <div class="brkpt" :class="{canset}" v-else @click="toggle">
                 <div>#</div>
             </div>
             <div class="addr">{{ addr }}</div>
@@ -38,12 +35,17 @@
 const store = useMainStore()
 
 const props = defineProps({
+    index: {
+        type: Number,
+        required: true
+    },
     line: {
         type: Object,
         required: true
     }
 })
 
+let address = null
 const addr = computed(() => props.line.address)
 const code = computed(() => props.line.code)
 // const filename = computed(() => `${props.line[3]}:${props.line[4]}`)
@@ -53,22 +55,32 @@ const opcode = computed(() => props.line.opcode.opcode)
 const operand = computed(() => props.line.opcode.operand)
 const comments = computed(() => props.line.opcode.comment)
 const brkptline = ref(false)
-
+const currline = ref(false)
+const fanfold = computed(() => (props.index % 6) < 3)
+const canset = computed(() => props.line.address != "" && props.line.code != "")
 
 function testBreakpoint() {
-    if (props.line.address.length == 4) {
-        const addr = parseInt(props.line.address, 16)
-        brkptline.value = store.isBreakpoint(addr)
+    if (address) {
+        brkptline.value = store.isBreakpoint(address)
+    }
+}
+
+function testCurrentLine() {
+    if (address) {
+        currline.value = store.isCurrentLine(address)
     }
 }
 
 onMounted(() => {
-    testBreakpoint()
+    if (props.line.address.length > 0) {
+        // console.log(`onMounted: ${props.line.address}`)
+        address = parseInt(props.line.address, 16)
+        testBreakpoint()
+        testCurrentLine()
+    }
 })
 
 watch(store.breakpoints, () => testBreakpoint())
-
-const selected = ref(false)
 
 const line_comment = computed(() => {
     return (props.line.opcode.label === "") && (props.line.opcode.opcode === "") && (props.line.opcode.operand === "")
@@ -86,7 +98,7 @@ function toggle() {
     display: grid;
     font-family: 'Courier New', Courier, monospace;
     font-weight: 400;
-    grid-template-columns: 1rem 3rem 10rem 15rem auto;
+    grid-template-columns: 1.5rem 3rem 10rem 15rem auto;
     grid-template-areas: 'brkpt addr code filename comments';
 }
 
@@ -94,17 +106,27 @@ function toggle() {
     display: grid;
     font-family: 'Courier New', Courier, monospace;
     font-weight: 400;
-    grid-template-columns: 1rem 3rem 10rem 15rem 6rem 6rem 20rem auto;
+    grid-template-columns: 1.5rem 3rem 10rem 15rem 6rem 6rem 20rem auto;
     grid-template-areas: 'brkpt addr code filename label opcode operand comments';
 }
 
 
-.selected {
-    background-color: lightpink;
+.current_line {
+    background-color: rgb(168, 216, 255);
 }
+.fanfold {
+    background: rgb(228, 253, 228);
+}
+.brkpt_active {
+    background-color: rgb(255, 209, 216);
+}
+
 
 .brkpt {
     background-color: white;
+}
+
+.canset {
     cursor: pointer;
 }
 

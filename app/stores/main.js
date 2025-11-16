@@ -26,6 +26,13 @@ export const useMainStore = defineStore('main', () => {
         return false
     }
 
+    function isCurrentLine(addr) {
+        return (addr + source_base.value) == registers["PC"]
+    }
+
+
+
+
     function setCurrentModule() {
         const module = modules.value.find((mod) => registers.value.PC >= mod.start && registers.value.PC < mod.end)
         if (module) {
@@ -51,6 +58,9 @@ export const useMainStore = defineStore('main', () => {
         console.log(`source: ${current_source.value}, base: ${source_base.value}`)
     }
 
+    function getCurrentSource() {
+        return current_source.value
+    }
 
     function setRegisters(reg) {
         registers.value = reg.registers
@@ -263,12 +273,13 @@ export const useMainStore = defineStore('main', () => {
         breakpoints,
         modules,
         current_module,
-        current_source,
         base_address,
         isBreakpoint,
+        isCurrentLine,
         getRegisters,
         setRegister,
         setSourceBase,
+        getCurrentSource,
         getModuleList,
         updateDisplay,
         getBreakpoints,

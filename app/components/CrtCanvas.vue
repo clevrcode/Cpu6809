@@ -65,6 +65,7 @@ function draw() {
 
 onMounted(() => {
     try {
+        renderContent(store.display)
         draw()
     } catch (error) {
         console.log(error)
@@ -79,11 +80,10 @@ function dataInput(ev) {
     }
 }
 
-watch(memory, (newDisplay, _) => {
+function renderContent(content) {
     let disp = []
     try {
-        console.log("update display...")
-        const data = Buffer.from(newDisplay, 'base64')
+        const data = Buffer.from(content, 'base64')
         if (store.display_type === "COCO") {
             for (let i=0; i < store.display_size.y; i++) {
                 let line = ""
@@ -106,6 +106,10 @@ watch(memory, (newDisplay, _) => {
         console.log(error)
     }
     displayContent.value = disp
+}
+
+watch(memory, (newDisplay, _) => {
+    renderContent(newDisplay)
     draw()
 })
 
@@ -118,7 +122,7 @@ canvas {
 }
 
 .crt-input input {
-    width: 100%;
+    width: 810px;
     background-color: #0b0;
     font-size: 24px;
 }

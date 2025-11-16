@@ -13,19 +13,26 @@
 .ctrl-button {
     font: inherit;
     color: Black;
-    background-color: #888;
+    background-color: #999;
     text-align: center;
     text-decoration: none;
     padding: 0.75rem 1rem;
     border: solid 1px black;
     cursor: pointer;
     width: 100px;
-    height: 50px;
+    box-shadow:
+        inset 2px 2px 3px rgb(255 255 255 / 0.6),
+        inset -2px -2px 3px rgb(0 0 0 / 0.6);
 }
 
 .ctrl-button:hover {
-    color: Black;
-    background-color: darkgray;
+    background-color: #CCC;   
+}
+
+.ctrl-button:active {
+    box-shadow:
+        inset -2px -2px 3px rgb(255 255 255 / 0.6),
+        inset 2px 2px 3px rgb(0 0 0 / 0.6);
 }
 
 </style>

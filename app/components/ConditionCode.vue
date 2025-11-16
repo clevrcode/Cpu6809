@@ -17,23 +17,18 @@
 
 <script setup>
 
-const props = defineProps({
-    value: {
-        type: Number,
-        required: true
-    }
-})
+const store = useMainStore()
+const cc = computed(() => store.registers["CC"])
 
-const entireOn   = computed(() => ((props.value & 0x80) != 0))
-const halfOn     = computed(() => ((props.value & 0x20) != 0))
-const negativeOn = computed(() => ((props.value & 0x08) != 0))
-const zeroOn     = computed(() => ((props.value & 0x04) != 0))
-const overflowOn = computed(() => ((props.value & 0x02) != 0))
-const carryOn    = computed(() => ((props.value & 0x01) != 0))
-const firqOn     = computed(() => ((props.value & 0x40) != 0))
-const irqOn      = computed(() => {
-    return ((props.value & 0x10) != 0)
-})
+const entireOn   = computed(() => ((cc.value & 0x80) != 0))
+const halfOn     = computed(() => ((cc.value & 0x20) != 0))
+const negativeOn = computed(() => ((cc.value & 0x08) != 0))
+const zeroOn     = computed(() => ((cc.value & 0x04) != 0))
+const overflowOn = computed(() => ((cc.value & 0x02) != 0))
+const carryOn    = computed(() => ((cc.value & 0x01) != 0))
+const firqOn     = computed(() => ((cc.value & 0x40) != 0))
+
+const irqOn      = computed(() => ((cc.value & 0x10) != 0))
 
 </script>
 

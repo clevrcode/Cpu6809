@@ -15,14 +15,6 @@
 </template>
 
 <script setup>
-
-const emit = defineEmits(['update'])
-
-function update(name) {
-    console.log(`registers update: ${name}`)
-    emit('update', name)
-}
-
 </script>
 
 <style scoped>
