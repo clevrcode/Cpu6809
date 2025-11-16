@@ -1,7 +1,8 @@
 <template>
     <div>
         <div class="debug-header">
-            <BaseButton @click="getFile">Get File</BaseButton>
+            <BaseButton @click="getFile" :enabled="button_enabled">Get File</BaseButton>
+            <module-selector @change="moduleChanged"></module-selector>
             <h1>MODULE: {{ module }}</h1>
         </div>
         <div class="file-window">
@@ -18,14 +19,22 @@
 
 const store = useSourceStore()
 const main_store = useMainStore()
+const button_enabled = computed(() => selected_module.value != null)
+const module = computed(() => main_store.current_module)
+const selected_module = ref(null)
 
-const module = computed(() => main_store.getCurrentSource())
+function moduleChanged(event) {
+    console.log(`module changed to: ${event.target.value}`)
+    selected_module.value = event.target.value
+}
 
 async function getFile() {
     try {
-        console.log("get file button clicked")
-        main_store.setSourceBase("verify")
-        await store.GetSource("verify")
+        if (selected_module.value) {
+            console.log("get file button clicked")
+            main_store.setSourceBase(selected_module.value)
+            await store.GetSource(selected_module.value)
+        }
     } catch (error) {
         console.log(error)
     }
@@ -38,7 +47,7 @@ async function getFile() {
 .debug-header {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content:space-around;
     align-items: center;
     border: solid 2px black;
 }

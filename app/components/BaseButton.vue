@@ -1,10 +1,18 @@
 <template>
-    <button class="styled" type="button">
+    <button class="styled" :disabled="!enabled" type="button">
         <slot></slot>
     </button>
 </template>
 
 <script setup>
+
+const props = defineProps({
+    enabled: {
+        type: Boolean,
+        required: false,
+        default: true
+    }
+})
 
 </script>
 
@@ -33,6 +41,9 @@
 
 .styled:hover {
   background-color: red;
+}
+.styled:disabled {
+  background-color: grey;
 }
 
 .styled:active {
