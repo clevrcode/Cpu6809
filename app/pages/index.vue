@@ -11,6 +11,7 @@
     
     async function sendCommand(cmd) {
         try {
+            console.log('send command...')
             await store.sendCommand(cmd)
             await store.run("200")
             await store.updateDisplay()

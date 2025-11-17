@@ -14,24 +14,25 @@ export const useMainStore = defineStore('main', () => {
     const breakpoints = ref([])
     const modules = ref([])
     const current_module = ref("")
-    const current_source = ref("")
+
+    const memory_start = ref(null)
+    const memory_content = ref([])
+
+    const current_source = ref(null)
     const base_address = ref(0)
     const source_base = ref(0)
+    const source_content = ref([])
 
-    function isBreakpoint(addr) {
-        for (let brk of breakpoints.value) {
-            if ((addr + source_base.value) == brk.address)
-                return true
-        }
+    function isBreakpoint(address) {
+        let breakpoint = breakpoints.value.find((b) => b.address == address)
+        if (breakpoint)
+            return breakpoint.enable
         return false
     }
 
-    function isCurrentLine(addr) {
-        return (addr + source_base.value) == registers["PC"]
+    function isCurrentLine(address) {
+        return address == registers["PC"]
     }
-
-
-
 
     function setCurrentModule() {
         const module = modules.value.find((mod) => registers.value.PC >= mod.start && registers.value.PC < mod.end)
@@ -71,6 +72,43 @@ export const useMainStore = defineStore('main', () => {
         halted.value = reg.halted
         if (map_type.value === "RAM") {
             setCurrentModule()
+        }
+    }
+
+    function getModuleType(module) {
+        const mod = modules.value.find((mod) => mod.name === module)
+        if (mod) {
+            if (mod.type == 13) 
+                return ".mn"
+            if (mod.type == 14)
+                return ".dr"
+            if (mod.type == 15)
+                return ".dd"
+            return ""
+        }
+    }
+
+    async function GetSource(source_name) {
+        try {
+            const filename = source_name + getModuleType(source_name) + ".lst"
+            source_content.value = []
+            // const url = useRuntimeConfig().public.api_url + "/" + filename
+            const url = useRuntimeConfig().public.api_url + "/source"
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            console.log(`get ${url}`)
+            // const response = await $fetch(url, { parseResponse: (txt) => txt })
+            const response = await $fetch(url, {
+                headers,
+                query: {
+                    file: filename
+                }
+            })
+            setSourceBase(source_name)
+            source_content.value = response;
+
+        } catch (error) {
+            console.log(error)
+            throw error
         }
     }
 
@@ -240,6 +278,29 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
+    async function getMemory(address, length) {
+        try {
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const url = useRuntimeConfig().public.api_url + "/memory"
+            const response = await $fetch(url, 
+                { 
+                    method: 'GET', 
+                    headers,
+                    query: {
+                        start: address,
+                        length: length
+                    }
+                }
+            )
+            console.log(`response: ${response.address}`)
+            memory_start.value = response.address
+            memory_content.value = response.data
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
     async function sendCommand(command) {
         try {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
@@ -274,17 +335,22 @@ export const useMainStore = defineStore('main', () => {
         modules,
         current_module,
         base_address,
+        source_content,
+        source_base,
+        memory_start,
+        memory_content,
+        GetSource,
         isBreakpoint,
         isCurrentLine,
         getRegisters,
         setRegister,
-        setSourceBase,
         getCurrentSource,
         getModuleList,
         updateDisplay,
         getBreakpoints,
         addBreakpoint,
         deleteBreakpoint,
+        getMemory,
         sendCommand,
         run,
         cpubreak,

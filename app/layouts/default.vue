@@ -14,11 +14,18 @@
             @submit="submitMemoryRequest"
         />
     </transition>
+    <transition name="slideform">
+        <BreakpointList v-if="showBreakpoints" class="breakpoint-form"
+            @cancel="canCloseBreakpoints"
+            @submit="submitBreakpointRequest"
+        />
+    </transition>
+
     <div class="main-page">
         <TheHeader></TheHeader>
         <div class="control-panel">
             <ConditionCode />
-            <ControlButtonBar @memory="openMemory"/>
+            <ControlButtonBar @memory="openMemory" @breakpoint="openBreakpoints"/>
         </div>
         <div class="page_separator">
         </div>
@@ -39,13 +46,18 @@
     const store = useMainStore()
 
     const showRegForm = ref(false)
+    const showBreakpoints = ref(false)
     const showMemoryForm = ref(false)
     const regFormName = ref("")
     const regFormValue = ref(0)
     const regValSize = ref(16)
 
     function openMemory() {
-        showMemoryForm.value = true
+        showMemoryForm.value = !showMemoryForm.value
+    }
+
+    function openBreakpoints() {
+        showBreakpoints.value = !showBreakpoints.value
     }
 
     function openForm(name, size) {
@@ -61,7 +73,10 @@
     function canCloseMemory() {
         showMemoryForm.value = false
     }
-    
+    function canCloseBreakpoints() {
+        showBreakpoints.value = false
+    }
+
     async function submitRegisterRequest(name, value) {
         console.log(`submit request ${name}: ${value} ${value.toString(16)}`)
         await store.setRegister({ name, value })
@@ -71,6 +86,10 @@
     function submitMemoryRequest() {
         console.log("submit memory request")
         canCloseMemory()
+    }
+
+    function submitBreakpointRequest() {
+        console.log("submit breakpoints")
     }
 
 </script>
@@ -111,7 +130,7 @@
     position: fixed;
     top: 50%;
     right: 0%;
-    width: 50%;
+    /* width: 50%; */
     z-index: 1;
 }
 
@@ -119,7 +138,15 @@
     position: fixed;
     top: 25%;
     right: 0%;
-    width: 50%;
+    /* width: 80%; */
+    z-index: 1;
+}
+
+.breakpoint-form {
+    position: fixed;
+    top: 40%;
+    right: 0%;
+    /* width: 50%; */
     z-index: 1;
 }
 

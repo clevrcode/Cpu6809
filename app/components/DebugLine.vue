@@ -2,7 +2,7 @@
     <div v-if="line_comment">
         <div class="debug-line-comment" :class="{fanfold}">
             <div class="brkpt">
-                <div>=</div>
+                <div> </div>
             </div>
             <div class="addr">{{ addr }}</div>
             <div class="code">{{ code }}</div>
@@ -16,7 +16,7 @@
                 <IconsBreakpoint />
             </div>
             <div class="brkpt" :class="{canset}" v-else @click="toggle">
-                <div>#</div>
+                <div> </div>
             </div>
             <div class="addr">{{ addr }}</div>
             <div class="code">{{ code }}</div>
@@ -48,7 +48,6 @@ const props = defineProps({
 let address = null
 const addr = computed(() => props.line.address)
 const code = computed(() => props.line.code)
-// const filename = computed(() => `${props.line[3]}:${props.line[4]}`)
 const filename = computed(() => props.line.file + ":" + props.line.line)
 const label = computed(() => props.line.opcode.label)
 const opcode = computed(() => props.line.opcode.opcode)
@@ -61,6 +60,7 @@ const canset = computed(() => props.line.address != "" && props.line.code != "")
 
 function testBreakpoint() {
     if (address) {
+        console.log(`test breakpoint ${address}`)
         brkptline.value = store.isBreakpoint(address)
     }
 }
@@ -74,7 +74,7 @@ function testCurrentLine() {
 onMounted(() => {
     if (props.line.address.length > 0) {
         // console.log(`onMounted: ${props.line.address}`)
-        address = parseInt(props.line.address, 16)
+        address = parseInt(props.line.address, 16) + store.source_base
         testBreakpoint()
         testCurrentLine()
     }
@@ -88,6 +88,11 @@ const line_comment = computed(() => {
 
 function toggle() {
     console.log("toggle breakpoint TODO")
+    const payload = {
+        address: address,
+        enable: !brkptline.value
+    }
+
 }
 
 </script>
@@ -121,7 +126,6 @@ function toggle() {
     background-color: rgb(255, 209, 216);
 }
 
-
 .brkpt {
     background-color: white;
 }
@@ -141,6 +145,4 @@ function toggle() {
     display: inline;
     color: green;
 }
-
-
 </style>

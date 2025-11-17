@@ -7,16 +7,15 @@
         <div v-for="breakpoint of breakpoints">
             <BreakpointItem :breakpoint @toggle-enable="toggleEnabled" @delete="deleteBreakpoint"></BreakpointItem>
         </div>
-        <div class="break-modules">
-            <div v-if="useModule">
-                <label for="moduleList">OS9 Modules:</label>
-                <select id="moduleList" v-model="moduleSelected">
-                    <option disabled value="">Select a module</option>
-                    <div v-for="module in modules" >
-                        <option :value="module.name">{{ module.name }}</option>
-                    </div>
-                </select>
-            </div>
+        <div class="break-modules" v-if="useModule">
+            <module-selector :module="moduleSelected" @change="moduleChanged"></module-selector>
+            <!-- <label for="moduleList">OS9 Modules:</label>
+            <select id="moduleList" v-model="moduleSelected">
+                <option disabled value="">Select a module</option>
+                <div v-for="module in modules" >
+                    <option :value="module.name">{{ module.name }}</option>
+                </div>
+            </select> -->
         </div>
         <div class="break-input">
             <input type="text" placeholder="breakpoint" spellcheck="false" @keydown="dataInput" v-model="breakpoint">
@@ -30,9 +29,13 @@ const store = useMainStore()
 
 const moduleSelected = ref("")
 const breakpoint = ref("")
-const modules = computed(() => store.modules)
 
 let useModule = ref(true)
+
+function moduleChanged(event) {
+    console.log(`module changed to: ${event.target.value}`)
+    moduleSelected.value = event.target.value
+}
 
 const breakpoints = computed(() => {
     let brkpts = []
@@ -83,6 +86,7 @@ function dataInput(ev) {
                 }
             }
             store.addBreakpoint({ address, enable })
+            breakpoint.value = ""
         } 
     } catch (error) {
         console.log(error)
@@ -114,14 +118,20 @@ onMounted(async () => {
 <style scoped>
 
 .list-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
     border: solid 5px #777;
     background-color: black;
     width: 300px;
-    height: 200px;
 }
 
 .follow-checkbox {
     padding: 5px 5px;
+}
+
+.follow-checkbox label {
+    color: white;
 }
 
 .break-input {

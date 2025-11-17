@@ -2,12 +2,12 @@
     <div>
         <div class="debug-header">
             <BaseButton @click="getFile" :enabled="button_enabled">Get File</BaseButton>
-            <module-selector @change="moduleChanged"></module-selector>
+            <module-selector :module="selected_module" @change="moduleChanged"></module-selector>
             <h1>MODULE: {{ module }}</h1>
         </div>
         <div class="file-window">
             <div class="file-content">
-                <div v-for="(line, index) in store.content">
+                <div v-for="(line, index) in store.source_content">
                     <debug-line :index :line></debug-line>
                 </div>
             </div>
@@ -17,11 +17,11 @@
 
 <script setup>
 
-const store = useSourceStore()
-const main_store = useMainStore()
+const store = useMainStore()
+const selected_module = ref(store.getCurrentSource())
+
+const module = computed(() => store.current_module)
 const button_enabled = computed(() => selected_module.value != null)
-const module = computed(() => main_store.current_module)
-const selected_module = ref(null)
 
 function moduleChanged(event) {
     console.log(`module changed to: ${event.target.value}`)
@@ -30,15 +30,20 @@ function moduleChanged(event) {
 
 async function getFile() {
     try {
+        console.log("...")
         if (selected_module.value) {
             console.log("get file button clicked")
-            main_store.setSourceBase(selected_module.value)
             await store.GetSource(selected_module.value)
         }
     } catch (error) {
         console.log(error)
     }
 }
+
+onMounted(() => {
+    console.log(`current source: ${selected_module.value}`)
+})
+
 
 </script>
 
@@ -65,7 +70,7 @@ async function getFile() {
 
 .file-window {
     /* padding: 0 2%; */
-    width: 100%;
+    width: 95%;
 }
 
 .file-content {

@@ -15,6 +15,13 @@
 const emit = defineEmits(['changed'])
 const store = useMainStore()
 
+const props = defineProps({
+    module: {
+        type: String,
+        required: false
+    }
+})
+
 const moduleSelected = ref("")
 const modules = computed(() => store.modules)
 
@@ -23,12 +30,20 @@ function moduleChanged() {
     emit('changed', moduleSelected.value)
 }
 
+onMounted(() => {
+    console.log(`module selector mounted: ${props.module}`)
+    moduleSelected.value = props.module
+})
+
 </script>
 
 <style scoped>
 
 .module-selector {
     width: 200px;
+}
+.module-selector label {
+    color: white;
 }
 
 #moduleList {
