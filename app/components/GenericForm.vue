@@ -3,7 +3,7 @@
         <div class="form-content">
             <slot></slot>
         </div>
-        <div class="button-bar">
+        <div class="button-bar" v-if="with_buttons">
             <BaseButton @click="$emit('submit')">APPLY</BaseButton>
             <BaseButton @click="$emit('cancel')">CANCEL</BaseButton>
         </div>
@@ -11,6 +11,17 @@
 </template>
 
 <script setup>
+
+const props = defineProps({
+    with_buttons: {
+        type: Boolean,
+        required: false,
+        default: true
+    }
+
+
+})
+
 </script>
 
 <style scoped>

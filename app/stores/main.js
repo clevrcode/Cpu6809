@@ -15,6 +15,7 @@ export const useMainStore = defineStore('main', () => {
     const modules = ref([])
     const current_module = ref("")
 
+    const selected_memory = ref(null)
     const memory_start = ref(null)
     const memory_content = ref([])
 
@@ -292,7 +293,6 @@ export const useMainStore = defineStore('main', () => {
                     }
                 }
             )
-            console.log(`response: ${response.address}`)
             memory_start.value = response.address
             memory_content.value = response.data
         } catch (error) {
@@ -300,6 +300,25 @@ export const useMainStore = defineStore('main', () => {
             throw error
         }
     }
+
+    async function setMemory(address, value) {
+        try {
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const url = useRuntimeConfig().public.api_url + "/memory"
+            const response = await $fetch(url, 
+                { 
+                    method: 'PUT', 
+                    headers,
+                    query: { address, value }
+                }
+            )
+            memory_content.value[address - memory_start.value] = response.data
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
 
     async function sendCommand(command) {
         try {
@@ -320,6 +339,14 @@ export const useMainStore = defineStore('main', () => {
             throw error
         }
     }
+    
+    function setSelectedMemory(addr) {
+        selected_memory.value = addr
+    }
+
+    function getSelectedMemory() {
+        return selected_memory.value
+    }
 
     return {
         registers,
@@ -339,6 +366,7 @@ export const useMainStore = defineStore('main', () => {
         source_base,
         memory_start,
         memory_content,
+        selected_memory,
         GetSource,
         isBreakpoint,
         isCurrentLine,
@@ -351,6 +379,9 @@ export const useMainStore = defineStore('main', () => {
         addBreakpoint,
         deleteBreakpoint,
         getMemory,
+        setMemory,
+        setSelectedMemory,
+        getSelectedMemory,
         sendCommand,
         run,
         cpubreak,

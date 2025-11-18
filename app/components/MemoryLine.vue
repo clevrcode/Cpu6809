@@ -1,39 +1,119 @@
 <template>
-    <div>{{ hexAddress }}</div>
-    <div v-for="x of hexData">{{ x }}</div>
-    <div>{{ asciiString }}</div>
+    <div class="table-address">{{ hexAddress }}</div>
+    <div class="table-data" v-for="x of hexData">
+        <div class="mem-content" @click="changeMemory(x)" :class="{active: isActive[x.idx]}">{{ x.mem }}</div>
+    </div>
+    <div class="table-ascii">{{ asciiString }}</div>
 </template>
 
 <script setup>
+
+const store = useMainStore()
+
+const emit = defineEmits(['changemem'])
 
 const props = defineProps({
     address: { type: Number, required: true },
     data: { type: Array, required: true }
 })
 
-const asciiString = ref("")
-const hexAddress = computed(() => props.address.toString(16).padStart(4, '0').toUpperCase())
-const hexData = ref([])
+const isActive = ref([])
 
-function buildAscii() {
-    asciiString.value = "";
+//computed((addr) => store.getSelectedMemory() == addr)
+
+const asciiString = computed(() => {
+    let str = "";
     for (let i = 0; i < props.data.length; i++) {
         let c = props.data[i]
-        hexData.value.push(c.toString(16).padStart(2, '0').toUpperCase())
         if ((c >= 0x20) && (c < 0x80)) {
-            asciiString.value += String.fromCharCode(c);
+            str += String.fromCharCode(c);
         } else {
-            asciiString.value += "."
+            str += "."
         }
+    }
+    return str
+})
+const hexAddress = computed(() => props.address.toString(16).padStart(4, '0').toUpperCase())
+const hexData = computed(() => {
+    let tmpdata = []
+    for (let i = 0; i < props.data.length; i++) {
+        let c = props.data[i]
+        tmpdata.push({
+            addr: props.address + i,
+            idx: i,
+            active: false,
+            mem: c.toString(16).padStart(2, '0').toUpperCase()
+        })
+        isActive.value[i] = (props.address + i) == store.selected_memory
+    }
+    return tmpdata
+})
+
+function setActive(addr) {
+    isActive.value.fill(false)
+    // console.log(`start address: ${addr.toString(16)} ${addr % props.data.length}`)
+    if ((addr >= props.address) && (addr < (props.address + props.data.length))) {
+        isActive.value[addr % props.data.length] = true
     }
 }
 
+const selected = computed(() => store.selected_memory)
+// const start_addr = computed(() => store.memory_start)
+
+watch(selected, (addr, _) => {
+    // console.log(`watch trigger, address: ${addr.toString(16)}`)
+    setActive(addr)
+})
+
+// watch(start_addr, (addr, _) => {
+//     console.log(`watch trigger, props address: ${addr.toString(16)}`)
+//     setActive(addr)
+// })
+
+function changeMemory(obj) {
+    store.setSelectedMemory(obj.addr)
+    emit('changemem', obj)
+}
+
 onMounted(() => {
-    buildAscii()
+    // console.log("memory line mounted")
+    isActive.value = new Array(props.data.length).fill(false);
 })
 
 </script>
 
 <style scoped>
+
+.table-address {
+    background-color: rgb(87, 180, 211);
+    padding: 0 20px;
+}
+
+.table-data {
+    background-color: lightblue;
+    padding: 0 10px;
+}
+
+.table-ascii {
+    background-color: rgb(87, 180, 211);
+    padding: 0 40px;
+}
+
+.mem-content {
+    cursor: pointer;
+    padding: 3px;
+}
+
+.active {
+    /* background-color: lightblue; */
+    /* border: 1px solid black; */
+    /* padding: 3px; */
+    background-color: blue;
+    color: white;
+    box-shadow:
+        inset -2px -2px 3px rgb(255 255 255 / 0.6),
+        inset 2px 2px 3px rgb(0 0 0 / 0.6);
+
+}
 
 </style>
