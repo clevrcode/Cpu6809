@@ -1,5 +1,7 @@
 export const useMainStore = defineStore('main', () => {
 
+    let timerId = 0
+
     const registers = ref({
         "A": 0, "B": 0, "D": 0, "X": 0, "Y": 0, "U": 0, "S": 0, "PC": 0, "CC": 0, "DP": 0
     })
@@ -40,7 +42,7 @@ export const useMainStore = defineStore('main', () => {
         if (module) {
             current_module.value = module.name
             base_address.value = module.start
-            console.log(`module: ${current_module.value} base address ${base_address.value}`)
+            // console.log(`module: ${current_module.value} base address ${base_address.value}`)
         } else {
             current_module.value = ""
             base_address.value = 0
@@ -231,6 +233,14 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
+    function stop() {
+        if (timerId != 0) {
+            clearTimeout(timerId)
+            timerId = 0
+        }
+        cpubreak()
+    }
+
     async function cpubreak() {
         try {
             const url = useRuntimeConfig().public.api_url + "/break"
@@ -243,7 +253,13 @@ export const useMainStore = defineStore('main', () => {
         }
     }
   
-    async function step() {
+    function step() {
+        sendStep()
+        updateDisplay()
+        getModuleList()
+    }
+
+    async function sendStep() {
         try {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const url = useRuntimeConfig().public.api_url + "/step"
@@ -255,7 +271,13 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
-    async function stepover() {
+    function stepover() {
+        sendStepover()
+        updateDisplay()
+        getModuleList()
+    }
+
+    async function sendStepover() {
         try {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const url = useRuntimeConfig().public.api_url + "/stepover"
@@ -267,7 +289,13 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
-    async function reset() {
+    function reset() {
+        sendReset()
+        updateDisplay()
+        getModuleList()
+    }
+
+    async function sendReset() {
         try {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const url = useRuntimeConfig().public.api_url + "/reset"
@@ -305,14 +333,15 @@ export const useMainStore = defineStore('main', () => {
         try {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const url = useRuntimeConfig().public.api_url + "/memory"
-            const response = await $fetch(url, 
+            await $fetch(url, 
                 { 
                     method: 'PUT', 
                     headers,
                     query: { address, value }
                 }
             )
-            memory_content.value[address - memory_start.value] = response.data
+            // Ignore response, send a request to update the whole memory block
+            //memory_content.value[address - memory_start.value] = response.data
         } catch (error) {
             console.log(error)
             throw error
@@ -384,7 +413,7 @@ export const useMainStore = defineStore('main', () => {
         getSelectedMemory,
         sendCommand,
         run,
-        cpubreak,
+        stop,
         step,
         stepover,
         reset

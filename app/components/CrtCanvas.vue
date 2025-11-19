@@ -1,8 +1,10 @@
 <template>
     <div>
-        <canvas ref="crt" id="crtscreen" width="800" height="500">
-            Unsupported browser
-        </canvas>
+        <div class="display" @keydown="keyPressed">
+            <canvas ref="crt" id="crtscreen" width="800" height="500">
+                Unsupported browser
+            </canvas>
+        </div>
         <div class="crt-input">
             <input type="text" placeholder="command" spellcheck="false" @keydown="dataInput" v-model="command">
         </div>        
@@ -33,6 +35,10 @@ const cocoCharMap = [
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?'   // 0x70-0x7f
 ];
 
+function keyPressed(ev) {
+    console.log(`key pressed [${ev.key}]`)
+}
+
 function fillBackgroundColor(canvas, context, bgcolor) {
     context.fillStyle = bgcolor;
     context.fillRect(0, 0, canvas.width, canvas.height)
@@ -46,7 +52,6 @@ function getDisplayParams() {
 }
 
 function draw() {
-    // const line = isCoco.value ? "ABCDEFGHIJKLMNOPQRSTUVWXYZ012345" : "AAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDDAAAAAAAAAABBBBBBBBBBCCCCCCCCCCDDDDDDDDDD"
     const context = crt.value.getContext("2d")
     const params = getDisplayParams()
     fillBackgroundColor(crt.value, context, params.bg)
@@ -73,8 +78,17 @@ onMounted(() => {
 })
 
 function dataInput(ev) {
+    let b64cmd = null
     if (ev.key === "Enter") {
-        let b64cmd = btoa(command.value + "\r")
+        b64cmd = Buffer.from(command.value + "\r").toString('base64')
+    } else if (((ev.key == "C")||(ev.key == "c")) && ev.ctrlKey) {
+        const buffer = 
+        b64cmd = Buffer.from([0x03]).toString('base64')
+    } else if (ev.key == "Escape") {
+        b64cmd = Buffer.from([0x1b]).toString('base64')
+    }
+    if (b64cmd) {
+        console.log(`send command: ${b64cmd}`)
         emit('command', b64cmd)
         command.value = ""
     }

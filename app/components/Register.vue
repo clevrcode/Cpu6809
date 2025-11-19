@@ -27,10 +27,6 @@ function format_value(val, radix, width) {
     return val.toString(radix).padStart(width, '0').toUpperCase()
 }
 
-// watch(store.registers[props.name], (newValue, oldValue) => {
-//     modified.value = newValue !== oldValue
-// })
-
 const hex_value = computed(() => {
     try {
         modified.value = store.registers[props.name] != prevValue

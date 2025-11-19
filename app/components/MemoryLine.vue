@@ -1,7 +1,7 @@
 <template>
     <div class="table-address">{{ hexAddress }}</div>
     <div class="table-data" v-for="x of hexData">
-        <div class="mem-content" @click="changeMemory(x)" :class="{active: isActive[x.idx]}">{{ x.mem }}</div>
+        <div class="mem-content" @click="selectMemory(x)" :class="{active: isActive[x.idx]}">{{ x.mem }}</div>
     </div>
     <div class="table-ascii">{{ asciiString }}</div>
 </template>
@@ -10,7 +10,7 @@
 
 const store = useMainStore()
 
-const emit = defineEmits(['changemem'])
+const emit = defineEmits(['select'])
 
 const props = defineProps({
     address: { type: Number, required: true },
@@ -41,7 +41,6 @@ const hexData = computed(() => {
         tmpdata.push({
             addr: props.address + i,
             idx: i,
-            active: false,
             mem: c.toString(16).padStart(2, '0').toUpperCase()
         })
         isActive.value[i] = (props.address + i) == store.selected_memory
@@ -58,21 +57,13 @@ function setActive(addr) {
 }
 
 const selected = computed(() => store.selected_memory)
-// const start_addr = computed(() => store.memory_start)
 
 watch(selected, (addr, _) => {
-    // console.log(`watch trigger, address: ${addr.toString(16)}`)
     setActive(addr)
 })
 
-// watch(start_addr, (addr, _) => {
-//     console.log(`watch trigger, props address: ${addr.toString(16)}`)
-//     setActive(addr)
-// })
-
-function changeMemory(obj) {
-    store.setSelectedMemory(obj.addr)
-    emit('changemem', obj)
+function selectMemory(obj) {
+    emit('select', obj)
 }
 
 onMounted(() => {
@@ -95,6 +86,9 @@ onMounted(() => {
 }
 
 .table-ascii {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.2rem;
+    font-weight: 400;
     background-color: rgb(87, 180, 211);
     padding: 0 40px;
 }

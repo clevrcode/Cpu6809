@@ -25,7 +25,7 @@
         <TheHeader></TheHeader>
         <div class="control-panel">
             <ConditionCode />
-            <ControlButtonBar @memory="openMemory" @breakpoint="openBreakpoints"/>
+            <ControlButtonBar @memory="openMemory" @breakpoint="openBreakpoints" @cpurun="run"/>
         </div>
         <div class="page_separator">
         </div>
@@ -35,7 +35,7 @@
                 <Registers @update="openForm"></Registers>
             </div>
             <div class="console-panel_main">
-                <NuxtPage></NuxtPage>
+                <NuxtPage @command="submitCommand"></NuxtPage>
             </div>
         </div>
     </div>
@@ -91,6 +91,50 @@
     function submitBreakpointRequest() {
         console.log("submit breakpoints")
     }
+
+    async function submitCommand(cmd) {
+        try {
+            await store.sendCommand(cmd)
+            runOnce()
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
+
+    let timerId = 0
+
+    function run() {
+        console.log("run cpu...")
+        runOnce()
+    }
+    async function runOnce()
+    {
+        try {
+            await store.run("200")
+            await store.updateDisplay()
+            if (!store.break_active && !store.wait) {
+                timerId = setTimeout(runOnce, 50)
+            } else {
+                await store.getModuleList()
+                timerId = 0
+           }
+        } catch (error) {
+            console.error("An error occurred during 'run':", error);
+            timerId = 0
+        }
+    }    
+    
+    function update() {
+        console.log("update")
+        store.getRegisters()
+        store.updateDisplay()
+        store.getBreakpoints()
+    }
+
+    onMounted(() => {
+        update()
+    })
 
 </script>
 
@@ -163,6 +207,5 @@
 .slideform-enter-to {
     transform: translateX(0%);
 }
-
 
 </style>

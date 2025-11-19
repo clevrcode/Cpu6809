@@ -53,5 +53,4 @@ const mapType = computed(() => store.map_type)
     color: white;
 }
 
-
 </style>

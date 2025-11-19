@@ -1,23 +1,43 @@
 <template>
-    <GenericForm @submit="submitForm" :with_buttons="false">
+    <GenericForm @submit="sendMemoryRequest" :with_buttons="false">
         <div class="main-window">
             <div class="header">
                 <h1>MEMORY</h1>
                 <div class="mem-address">
-                    <label for="memvalue">{{ start_address }}</label>
-                    <input type="text" id="memvalue" v-model="start_value">
+                    <label for="memvalue">{{ mem_origin }}</label>
+                    <input type="text" id="memvalue" pattern="[a-fA-F0-9]{1,5}" v-model="start_value" @keydown="originInput">
                     <BaseButton @click="setStart">Apply</BaseButton>
-
                 </div>
-                <div class="mem-input">
-                    <label for="memvalue">{{ mem_address }}</label>
-                    <input type="text" id="memvalue" v-model="mem_value">
+                <div class="mem-address">
+                    <label for="memvalue">{{ mem_select }}</label>
+                    <input type="text" id="memvalue" v-model="mem_change" @keydown="changeInput">
                     <BaseButton @click="setMemory">Apply</BaseButton>
                 </div>
+                <fieldset>
+                    <legend>From Register {{ reg_selected }}</legend>
+                    <div class="radio-buttons">
+                        <div class="reg-radio"><input type="radio" id="reg_x" name="reg_" value="X" v-model="reg_selected"/>
+                            <label for="reg_x">X</label>
+                        </div>
+                        <div class="reg-radio"><input type="radio" id="reg_y" name="reg_" value="Y" v-model="reg_selected"/>
+                            <label for="reg_y">Y</label>
+                        </div>
+                        <div class="reg-radio"><input type="radio" id="reg_u" name="reg_" value="U" v-model="reg_selected"/>
+                            <label for="reg_u">U</label>
+                        </div>
+                        <div class="reg-radio"><input type="radio" id="reg_s" name="reg_" value="S" v-model="reg_selected"/>
+                            <label for="reg_s">S</label>
+                        </div>
+                        <div class="reg-radio"><input type="radio" id="reg_pc" name="reg_" value="PC" v-model="reg_selected"/>
+                            <label for="reg_pc">PC</label>
+                        </div>
+                    </div>
+                </fieldset>
+
             </div>
             <div class="table-frame">
                 <div class="main-table" v-for="(_, idx) in address">
-                    <MemoryLine @changemem="changeMemory" :address="address[idx]" :data="memdata[idx]" ></MemoryLine>
+                    <MemoryLine @select="selectMemory" :address="address[idx]" :data="memdata[idx]" ></MemoryLine>
                 </div>
             </div>
             <div class="data-buttons">
@@ -35,35 +55,60 @@
 const store = useMainStore()
 
 const start_value = ref("")
-const mem_value = ref("")
-const start_address = computed(() => store.memory_start?.toString(radix.value).padStart(4, '0').toUpperCase())
-const mem_address = computed(() => store.selected_memory?.toString(radix.value).padStart(4, '0').toUpperCase())
+const mem_change = ref("")
+const mem_origin = computed(() => store.memory_start?.toString(radix.value).padStart(4, '0').toUpperCase())
+const mem_select = computed(() => store.selected_memory?.toString(radix.value).padStart(4, '0').toUpperCase())
 
 const memdata = ref([])
 const address = ref([])
 const radix = ref(16)
 
-function changeMemory(obj) {
-    console.log(`change memory ${obj.addr.toString(radix.value)} ${obj.mem}`)
-    // mem_address.value = obj.addr.toString(radix.value).padStart(4, '0').toUpperCase()
-    mem_value.value = obj.mem
+const reg_selected = ref("")
+
+function originInput(ev) {
+    if (ev.key === "Enter") {
+        setStart()
+    }
 }
 
 function setStart() {
     console.log(`set start address: ${start_value.value}`)
-    submitForm(parseInt(start_value.value, radix.value), 256)
+    sendMemoryRequest(parseInt(start_value.value, radix.value), 256)
+}
+
+watch(reg_selected, (curr, old) => {
+    // console.log(`selection changed from ${old} to ${curr}`)
+    if (curr.length > 0) {
+        sendMemoryRequest(store.registers[curr], 256)
+    }
+})
+
+watch(mem_origin, (curr, old) => {
+    setOriginRegister()
+})
+
+function selectMemory(obj) {
+    console.log(`select memory ${obj.addr.toString(radix.value)} ${obj.mem}`)
+    store.setSelectedMemory(obj.addr)
+}
+
+function changeInput(ev) {
+    if (ev.key === "Enter") {
+        setMemory()
+    }
 }
 
 function setMemory() {
-    console.log(`${mem_value.value}`)
-    const address = store.selected_memory
-    const value = parseInt(mem_value.value, radix.value)
-    console.log(`set memory: ${address} ${value}`)
-    store.setMemory(address, value)
-    submitForm(store.memory_start, 256)
+    if (mem_change.value.length > 0) {
+        const address = store.selected_memory
+        const value = parseInt(mem_change.value, radix.value)
+        console.log(`set memory: ${address} ${value}`)
+        store.setMemory(address, value)
+        sendMemoryRequest(store.memory_start, 256)
+    }
 }
 
-async function submitForm(addr, length) {
+async function sendMemoryRequest(addr, length) {
     try {
         await store.getMemory(addr, length)
         address.value = []
@@ -77,47 +122,68 @@ async function submitForm(addr, length) {
     }
 }
 
-function backwardPage() {
-    if (store.memory_start >= 0x100) {
-        submitForm(store.memory_start - 0x100, 256)
-    } else {
-        submitForm(0, 256)
-    }    
+function refresh() {
+    sendMemoryRequest(store.memory_start, 256)
 }
 
+function backwardPage() {
+    if (store.memory_start >= 0x100) {
+        sendMemoryRequest(store.memory_start - 0x100, 256)
+    } else {
+        sendMemoryRequest(0, 256)
+    }    
+}
+ 
 function backwardLine() {
     if (store.memory_start >= 0x10) {
-        submitForm(store.memory_start - 0x10, 256)
+        sendMemoryRequest(store.memory_start - 0x10, 256)
     } else {
-        submitForm(0, 256)
+        sendMemoryRequest(0, 256)
     }    
 }
 function forwardLine() {
     if (store.memory_start < 0xFF00) {
-        submitForm(store.memory_start + 0x10, 256)
+        sendMemoryRequest(store.memory_start + 0x10, 256)
     } else {
-        submitForm(0xFF00, 256)
+        sendMemoryRequest(0xFF00, 256)
     }    
 }
 function forwardPage() {
     if (store.memory_start <= 0xFE00) {
-        submitForm(store.memory_start + 0x100, 256)
+        sendMemoryRequest(store.memory_start + 0x100, 256)
     } else {
-        submitForm(0xFF00, 256)
+        sendMemoryRequest(0xFF00, 256)
     }    
+}
+
+function setOriginRegister() {
+    if (store.memory_start == store.registers["X"]) {
+        reg_selected.value = "X"
+    } else if (store.memory_start == store.registers["Y"]) {
+        reg_selected.value = "Y"
+    } else if (store.memory_start == store.registers["U"]) {
+        reg_selected.value = "U"
+    } else if (store.memory_start == store.registers["S"]) {
+        reg_selected.value = "S"
+    } else if (store.memory_start == store.registers["PC"]) {
+        reg_selected.value = "PC"
+    } else {
+        reg_selected.value = ""
+    }
 }
 
 onMounted(() => {
     console.log(`on mounted ${store.memory_start} ${store.getSelectedMemory()}`)
     if (store.memory_start) {
-        submitForm(store.memory_start, 256)
-        if (store.getSelectedMemory()) {
-            const sel = store.getSelectedMemory()
-            console.log(`update selected memory to: ${sel}`)
-            mem_value.value = store.memory_content[sel - store.memory_start].toString(radix.value).padStart(2, '0').toUpperCase()
-        }
+        sendMemoryRequest(store.memory_start, 256)
+        // const selected = store.getSelectedMemory()
+        // if (selected && ((selected - store.memory_start) < 256)) {
+        //     console.log(`update selected memory to: ${selected} : ${store.memory_content[selected - store.memory_start]}`)
+        //     mem_change.value = store.memory_content[selected - store.memory_start].toString(radix.value).padStart(2, '0').toUpperCase()
+        // }
+        setOriginRegister()
     } else {
-        submitForm(0, 256)
+        sendMemoryRequest(0, 256)
     }
 })
 
@@ -126,6 +192,7 @@ onMounted(() => {
 <style scoped>
 
 .main-window {
+    font-family: 'Open+Sans', sans-serif;
     margin: 20px;
 }
 
@@ -134,6 +201,49 @@ onMounted(() => {
     flex-direction: row;
     align-items: center;
     justify-content: space-around;
+    margin: 20px;
+}
+
+.radio-buttons {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 5px;
+}
+
+fieldset {
+    border-radius: 8px;
+}
+
+legend {
+    color: white;
+    background-color: black;
+    padding: 5px 10px;
+    border-radius: 0;
+    border: 0;
+    font-size: 14px;
+}
+
+.radio-buttons label {
+  margin-right: 10px;
+  line-height: 15px;
+}
+
+.radio-buttons input {
+  appearance: none;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+
+  border: 2px solid #555;
+  transition: 0.2s all linear;
+  margin-right: 5px;
+
+  position: relative;
+  top: 4px;
+}
+
+.radio-buttons input:checked {
+  border: 6px solid black;
 }
 
 .mem-address {
@@ -142,21 +252,15 @@ onMounted(() => {
     align-items: center;
 }
 
-input {
-    height: 35px;
-    font-size: 1.3rem;
+.mem-address input {
+    height: 30px;
+    font-size: 1.1rem;
     width: 100px;
 }
 
-label {
+.mem-address label {
     font-size: 1.2rem;
     padding: 0 15px;
-}
-
-.mem-input {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
 }
 
 .table-frame {
@@ -168,7 +272,7 @@ label {
 .main-table {
     display: grid;
     background-color: white;
-    font-family: 'Courier New', Courier, monospace;
+    /* font-family: 'Courier New', Courier, monospace; */
     font-size: 1.2rem;
     font-weight: 400;
     grid-template-columns: 6rem repeat(16, 3.0rem) auto;

@@ -44,7 +44,6 @@ onMounted(() => {
     console.log(`current source: ${selected_module.value}`)
 })
 
-
 </script>
 
 <style scoped>

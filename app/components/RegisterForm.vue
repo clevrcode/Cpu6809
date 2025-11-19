@@ -55,15 +55,9 @@ function submitForm() {
     emit('submit', props.name, in_value.value)
 }
 
-// function cancel() {
-//     console.log('cancel')
-//     emit('cancel')
-// }
-
 </script>
 
 <style scoped>
-
 
 .form-register_name {
     font-size: 3rem;
@@ -87,7 +81,6 @@ function submitForm() {
 .form-input input {
     font-size: 2rem;
 }
-
 
 .form-input {
   margin-bottom: 10px;

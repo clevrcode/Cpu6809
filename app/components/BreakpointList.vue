@@ -9,13 +9,6 @@
         </div>
         <div class="break-modules" v-if="useModule">
             <module-selector :module="moduleSelected" @change="moduleChanged"></module-selector>
-            <!-- <label for="moduleList">OS9 Modules:</label>
-            <select id="moduleList" v-model="moduleSelected">
-                <option disabled value="">Select a module</option>
-                <div v-for="module in modules" >
-                    <option :value="module.name">{{ module.name }}</option>
-                </div>
-            </select> -->
         </div>
         <div class="break-input">
             <input type="text" placeholder="breakpoint" spellcheck="false" @keydown="dataInput" v-model="breakpoint">
