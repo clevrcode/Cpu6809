@@ -22,16 +22,21 @@
 const store = useMainStore()
 const diskSelected = ref("")
 
+const emit = defineEmits(['selected', 'remove', 'cancel'])
+
 function applyChange() {
     console.log(`change disk to: ${diskSelected.value}`)
+    emit('selected', diskSelected.value)
 }
 
 function removeDisk() {
     console.log("remove disk")
+    emit('remove')
 }
 
 function cancel() {
     console.log("cancel")
+    emit('cancel')
 }
 
 </script>

@@ -1,6 +1,6 @@
 <template>
     <transition name="slideform">
-        <DiskSelector class="file-form" v-if="showFileSelector" />
+        <DiskSelector class="file-form" v-if="showFileSelector" @selected="diskSelected" @cancel="cancelChange" @remove="removeDisk"/>
     </transition>
     <div class="main-page">
         <!-- <CrtDisplay @command="sendCommand"></CrtDisplay>   -->
@@ -28,10 +28,32 @@
         emit('command', cmd)
     }
 
+    const current_drive = ref(null)
+
     async function changeDisk(id) {
         console.log(`change disk: ${id}`)
         await store.getAvailableDisks()
+        current_drive.value = id
         showFileSelector.value = !showFileSelector.value
+    }
+
+    function diskSelected(disk) {
+        console.log(`new disk selected: ${disk}`)
+        store.mountDisk(current_drive.value, disk)
+        current_drive.value = null
+        showFileSelector.value = false;
+    }
+
+    function cancelChange() {
+        console.log("cancel disk change")
+        showFileSelector.value = false
+    }
+    
+    function removeDisk() {
+        console.log(`remove disk ${current_drive.value}`)
+        store.unmountDisk(current_drive.value)
+        current_drive.value = null
+        showFileSelector.value = false
     }
 
     onMounted(() => {

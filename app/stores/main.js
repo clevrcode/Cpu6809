@@ -413,6 +413,43 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
+    async function mountDisk(drive, name) {
+        try {
+            const url = useRuntimeConfig().public.api_url + "/disk"
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const response = await $fetch(url, { 
+                method: 'PUT', 
+                headers,                     
+                query: {
+                    drive, 
+                    name
+                }
+            })
+            floppy_disks.value = response.disks
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
+    async function unmountDisk(drive) {
+        try {
+            const url = useRuntimeConfig().public.api_url + "/disk"
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const response = await $fetch(url, { 
+                method: 'DELETE', 
+                headers,                     
+                query: {
+                    drive
+                }
+            })
+            floppy_disks.value = response.disks
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
     return {
         registers,
         display,
@@ -456,6 +493,8 @@ export const useMainStore = defineStore('main', () => {
         stepover,
         reset,
         getDisksInfo,
-        getAvailableDisks
+        getAvailableDisks,
+        mountDisk,
+        unmountDisk
     }
 })
