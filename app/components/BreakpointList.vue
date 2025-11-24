@@ -101,6 +101,8 @@ function UseModuleChanged() {
 onMounted(async () => {
     try {
         await store.getModuleList()
+        console.log(`module: ${store.current_module}`)
+        moduleSelected.value = store.current_module
     } catch (error) {
         console.log(error)
     }

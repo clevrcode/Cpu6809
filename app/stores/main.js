@@ -91,6 +91,14 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
+    function getModuleStart(module) {
+        const mod = modules.value.find((mod) => mod.name === module)
+        if (mod) {
+            return mod.start
+        }
+        return 0
+    }
+
     async function GetSource(source_name) {
         try {
             const filename = source_name + getModuleType(source_name) + ".lst"
@@ -196,6 +204,7 @@ export const useMainStore = defineStore('main', () => {
                     enable: payload.enable
                 }
              })
+             console.log("update breakpoint list")
             breakpoints.value = response.breakpoints
         } catch (error) {
             console.log(error)

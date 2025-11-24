@@ -5,7 +5,7 @@
         <ControlButton @click="store.stop"><IconsStop /></ControlButton>
         <ControlButton @click="store.step"><IconsStep /></ControlButton>
         <ControlButton @click="store.stepover"><IconsStepOver /></ControlButton>
-        <ControlButton @click="$emit('breakpoint')"><IconsBreakpoint /></ControlButton>
+        <ControlButton @click="$emit('breakpoint')"><IconsBreakBtn /></ControlButton>
         <ControlButton @click="$emit('memory')"><IconsMemory /></ControlButton>
     </div>
 </template>

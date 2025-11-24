@@ -4,10 +4,10 @@
         <div class="form-values">
             <div class="form-register_value">{{ hex_value }}</div>
             <div class="form-register_value">{{ dec_value }}</div>
-            <BitSelector :value :size @toggle="toggleBit"></BitSelector>
+            <BitSelector :value="value" :size @toggle="toggleBit"></BitSelector>
         </div>
         <div class="form-input">
-            <input type="text" pattern="[a-fA-F0-9]{1,5}" v-model.trim="new_value">
+            <input type="text" style="text-transform: uppercase" pattern="[a-fA-F0-9]{1,5}" v-model.trim="new_value" @keydown="dataInput">
             <span class="validity"></span>
         </div>
     </GenericForm>
@@ -37,21 +37,28 @@ function format_value(val, radix, width) {
 }
 
 const in_value = ref(props.value)
-const new_value = computed(() => format_value(in_value.value, 16, 4))
-const hex_value = computed(() => format_value(props.value, 16, 4))
-const dec_value = computed(() => format_value(props.value, 10, 0))
+const new_value = ref(format_value(in_value.value, 16, 4))
+const hex_value = computed(() => format_value(in_value.value, 16, 4))
+const dec_value = computed(() => format_value(in_value.value, 10, 0))
 
 function toggleBit(bit) {
     try {
         const mask = 1 << (props.size - bit - 1)
         in_value.value = in_value.value ^ mask
+        new_value.value = format_value(in_value.value, 16, 4)
     } catch (err) {
         console.log(err)
     }
 }
 
+function dataInput(ev) {
+    if (ev.key === "Enter") {
+        submitForm()
+    }
+}
+
 function submitForm() {
-    console.log(`>>>submit: ${props.name} ${in_value.value} ${in_value.value.toString(16)}`)
+    console.log(`>>>submit: ${props.name} ${in_value.value} ${new_value.value}`)
     emit('submit', props.name, in_value.value)
 }
 

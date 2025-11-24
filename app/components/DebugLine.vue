@@ -12,10 +12,10 @@
     </div>
     <div v-else>
         <div class="debug-line-code" :class="{fanfold, brkpt_active: brkptline, current_line: currline}">
-            <div class="brkpt" :class="{canset}" v-if="brkptline" @click="toggle">
+            <div class="brkpt" :class="{canset}" v-if="brkptline" @click="toggleBreakpoint">
                 <IconsBreakpoint />
             </div>
-            <div class="brkpt" :class="{canset}" v-else @click="toggle">
+            <div class="brkpt" :class="{canset}" v-else @click="toggleBreakpoint">
                 <div> </div>
             </div>
             <div class="addr">{{ addr }}</div>
@@ -45,10 +45,16 @@ const props = defineProps({
     }
 })
 
-let address = null
+let address = ref(null)
 const addr = computed(() => props.line.address)
 const code = computed(() => props.line.code)
-const filename = computed(() => props.line.file + ":" + props.line.line)
+// const filename = computed(() => props.line.file + ":" + props.line.line)
+const filename = computed(() => {
+    if (address.value && (props.line.code.length > 0)) {
+        return `(${address.value.toString(16).padStart(4, '0').toUpperCase()}):${props.line.line}`
+    }
+    return `(----):${props.line.line}`
+})
 const label = computed(() => props.line.opcode.label)
 const opcode = computed(() => props.line.opcode.opcode)
 const operand = computed(() => props.line.opcode.operand)
@@ -59,40 +65,55 @@ const fanfold = computed(() => (props.index % 6) < 3)
 const canset = computed(() => props.line.address != "" && props.line.code != "")
 
 function testBreakpoint() {
-    if (address) {
-        console.log(`test breakpoint ${address}`)
-        brkptline.value = store.isBreakpoint(address)
+    if (address.value) {
+        // console.log(`test breakpoint ${address}`)
+        brkptline.value = store.isBreakpoint(address.value)
     }
 }
 
 function testCurrentLine() {
-    if (address) {
-        currline.value = store.isCurrentLine(address)
+    if (address.value) {
+        currline.value = store.isCurrentLine(address.value)
+        if (currline.value) {
+            console.log(`pc: ${pgm_counter.value}, addr: ${address.value}`)
+        }
     }
 }
 
 onMounted(() => {
     if (props.line.address.length > 0) {
-        // console.log(`onMounted: ${props.line.address}`)
-        address = parseInt(props.line.address, 16) + store.source_base
+        address.value = parseInt(props.line.address, 16) + store.source_base
         testBreakpoint()
         testCurrentLine()
     }
 })
 
-watch(store.breakpoints, () => testBreakpoint())
+const pgm_counter = computed(() => store.registers["PC"])
+watch(pgm_counter, () => {
+    testCurrentLine()
+})
+
+
+const breakpointList = computed(() => store.breakpoints)
+watch(breakpointList, () => {
+    testBreakpoint()
+})
 
 const line_comment = computed(() => {
     return (props.line.opcode.label === "") && (props.line.opcode.opcode === "") && (props.line.opcode.operand === "")
 })
 
-function toggle() {
-    console.log("toggle breakpoint TODO")
-    const payload = {
-        address: address,
-        enable: !brkptline.value
+function toggleBreakpoint() {
+    if (brkptline.value) {
+        store.deleteBreakpoint(address.value)
+    } else {
+        const payload = {
+            address: address.value,
+            enable: true
+        }
+        console.log(`toggle breakpoint ${payload.address} ${payload.enable}`)
+        store.addBreakpoint(payload)
     }
-
 }
 
 </script>
@@ -103,7 +124,7 @@ function toggle() {
     display: grid;
     font-family: 'Courier New', Courier, monospace;
     font-weight: 400;
-    grid-template-columns: 1.5rem 3rem 10rem 15rem auto;
+    grid-template-columns: 2rem 3rem 10rem 8rem auto;
     grid-template-areas: 'brkpt addr code filename comments';
 }
 
@@ -111,13 +132,14 @@ function toggle() {
     display: grid;
     font-family: 'Courier New', Courier, monospace;
     font-weight: 400;
-    grid-template-columns: 1.5rem 3rem 10rem 15rem 6rem 6rem 20rem auto;
+    grid-template-columns: 2rem 3rem 10rem 8rem 6rem 6rem 20rem auto;
     grid-template-areas: 'brkpt addr code filename label opcode operand comments';
 }
 
 
 .current_line {
-    background-color: rgb(168, 216, 255);
+    /* background-color: rgb(168, 216, 255); */
+    background-color: blue;
 }
 .fanfold {
     background: rgb(228, 253, 228);

@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   $development: {
     runtimeConfig: {
       public: {
+        img_url: 'http://localhost:3000/',
         src_url: 'http://localhost:3000/sources',
         api_url: 'http://127.0.0.1:8080'
       }
@@ -15,7 +16,8 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/icon',
     '@nuxt/fonts',
-    '@pinia/nuxt'
+    '@pinia/nuxt',
+    '@vueuse/nuxt'
   ]
 
 })

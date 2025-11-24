@@ -1,8 +1,8 @@
 <template>
-    <div class="bits-box" v-if="ready">
+    <div class="bits-box">
         <div class="bit-item" v-for="(bit, index) in bit_values">
             <div class="bit-column">
-                <span>{{ size - index - 1 }}</span>
+                <label :for="index">{{ size - index - 1 }}</label>
                 <input type="checkbox" :id="index" :name="index" :checked="bit != 0" @click="$emit('toggle', index)"/>
             </div>
         </div>
@@ -25,27 +25,18 @@ const props = defineProps({
 })
 
 // const bit_values = ([ 1, 0, 1, 0, 1, 0, 1, 1])
-const bit_values = ref(null)
-const ready = ref(false)
+// const bit_values = ref(null)
 
-function toggle(idx) {
-    console.log(`bit toggled ${idx}`)
-}
-
-
-onMounted(() => {
-    try {
-        bit_values.value = []
-        let mask = 1 << (props.size - 1)
-        for (let i=0; i < props.size; i++) {
-            let bit = (props.value & mask) != 0 ? 1 : 0;
-            bit_values.value.push(bit)
-            mask = mask >> 1
-        }
-        ready.value = true
-    } catch (err) {
-        console.log(err)
+const bit_values = computed(() => {
+    console.log("compute bits")
+    let bits = []
+    let mask = 1 << (props.size - 1)
+    for (let i=0; i < props.size; i++) {
+        let bit = (props.value & mask) != 0 ? 1 : 0;
+        bits.push(bit)
+        mask = mask >> 1
     }
+    return bits
 })
 
 </script>

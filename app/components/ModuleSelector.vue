@@ -18,11 +18,11 @@ const store = useMainStore()
 const props = defineProps({
     module: {
         type: String,
-        required: false
+        required: true
     }
 })
 
-const moduleSelected = ref("")
+const moduleSelected = computed(() => props.module)
 const modules = computed(() => store.modules)
 
 function moduleChanged() {
@@ -30,10 +30,10 @@ function moduleChanged() {
     emit('changed', moduleSelected.value)
 }
 
-onMounted(() => {
-    console.log(`module selector mounted: ${props.module}`)
-    moduleSelected.value = props.module
-})
+// onMounted(() => {
+//     console.log(`prop: ${props.module}`)
+//     moduleSelected.value = props.module
+// })
 
 </script>
 

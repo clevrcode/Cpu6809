@@ -130,6 +130,7 @@
         store.getRegisters()
         store.updateDisplay()
         store.getBreakpoints()
+        store.getModuleList()
     }
 
     onMounted(() => {

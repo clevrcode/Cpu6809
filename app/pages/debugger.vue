@@ -3,10 +3,10 @@
         <div class="debug-header">
             <BaseButton @click="getFile" :enabled="button_enabled">Get File</BaseButton>
             <module-selector :module="selected_module" @change="moduleChanged"></module-selector>
-            <h1>MODULE: {{ module }}</h1>
+            <h1>MODULE : {{ module }}</h1>
         </div>
         <div class="file-window">
-            <div class="file-content">
+            <div class="file-content" ref="source-window">
                 <div v-for="(line, index) in store.source_content">
                     <debug-line :index :line></debug-line>
                 </div>
@@ -18,10 +18,13 @@
 <script setup>
 
 const store = useMainStore()
-const selected_module = ref(store.getCurrentSource())
+const selected_module = ref("")
+
+const sourceWnd = useTemplateRef('source-window')
+const { x, y } = useScroll(sourceWnd)
 
 const module = computed(() => store.current_module)
-const button_enabled = computed(() => selected_module.value != null)
+const button_enabled = computed(() => selected_module.value.length > 0)
 
 function moduleChanged(event) {
     console.log(`module changed to: ${event.target.value}`)
@@ -40,8 +43,31 @@ async function getFile() {
     }
 }
 
+const pgm_counter = computed(() => store.registers["PC"])
+watch(pgm_counter, (pc, oldpc) => {
+    const src = store.getCurrentSource()
+    if (src && (src == store.current_module)) {
+        const line = store.source_content.find((el) => el.address == pc)
+        if (line >= 0) {
+            console.log(`current line: ${line}, ${pc}`)
+        }
+    }
+})
+
+
 onMounted(() => {
-    console.log(`current source: ${selected_module.value}`)
+    console.log("debugger mounted")
+    if (store.getCurrentSource()) {
+        console.log(`current source: ${store.getCurrentSource()}`)
+        selected_module.value = store.getCurrentSource()
+    } else {
+        console.log("No source loaded")
+        selected_module.value = store.current_module
+    }
+    if (store.source_content?.length > 0) {
+        console.log(`scroll height: ${store.source_content.length}`)
+        y.value = (store.source_content.length * 18) / 2
+    }
 })
 
 </script>
