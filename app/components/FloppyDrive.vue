@@ -2,28 +2,45 @@
     <!-- <div class="drive-plate" :style="{backgroundImage: 'url(' + image + ')'}"> -->
     <div class="drive-plate">
         <div class="top-plate">
+            <div class="floppy-id">
+                <span>{{ disk_id }}</span>
+            </div>
             <div class="floppy-label">
-                <span>{{ disk_file }}</span>
+                <span>{{ disk_label }}</span>
             </div>
             <div class="floppy-led" :style="{backgroundImage: 'url(' + led_img + ')'}">
             </div>
         </div>
         <div class="floppy-slot"></div>
+        <div class="floppy-button">
+            <button class="ctrl-button" @click="$emit('change_disk', disk_id)">change</button>
+        </div>
     </div>
 </template>
 
 <script setup>
 
 const props = defineProps({
+    disk_id: {
+        type: Number,
+        required: true
+    },
     disk_file: {
         type: String,
-        required: false,
-        default: ""
+        required: true,
     }
 })
 
 const image = useRuntimeConfig().public.img_url + "FloppyFacePlate.png"
 const led_img = useRuntimeConfig().public.img_url + "red_led.png"
+
+const disk_label = computed(() => {
+    if (props.disk_file.length == 0) {
+        return "EMPTY"
+    }
+    return props.disk_file
+})
+
 </script>
 
 <style scoped>
@@ -49,12 +66,16 @@ const led_img = useRuntimeConfig().public.img_url + "red_led.png"
     padding-bottom: 10px;
 }
 
+.floppy-id {
+    color: white;
+}
+
 .floppy-label {
     color: black;
     border-radius: 5px;
     background-color: white;
-    width: 100px;
     padding: 3px;
+    padding: 0 20px;
 }
 
 .floppy-led {
@@ -68,5 +89,31 @@ const led_img = useRuntimeConfig().public.img_url + "red_led.png"
     width: 90%;
     height: 10px;
 }
+
+.floppy-button {
+    align-self: flex-end;
+    padding-top: 10px;
+    padding-right: 25px;
+}
+
+.ctrl-button {
+    background-color: #AAA;   
+    box-shadow:
+        inset 2px 2px 3px rgb(255 255 255 / 0.6),
+        inset -2px -2px 3px rgb(0 0 0 / 0.6);
+}
+
+.ctrl-button:hover {
+    background-color: #CCC;   
+}
+
+.ctrl-button:active {
+    background-color: #CCC;   
+    box-shadow:
+        inset -2px -2px 3px rgb(255 255 255 / 0.6),
+        inset 2px 2px 3px rgb(0 0 0 / 0.6);
+}
+
+
 
 </style>

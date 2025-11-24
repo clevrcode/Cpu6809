@@ -26,6 +26,9 @@ export const useMainStore = defineStore('main', () => {
     const source_base = ref(0)
     const source_content = ref([])
 
+    const floppy_disks = ref([])
+    const available_disks = ref([])
+
     function isBreakpoint(address) {
         let breakpoint = breakpoints.value.find((b) => b.address == address)
         if (breakpoint)
@@ -386,6 +389,30 @@ export const useMainStore = defineStore('main', () => {
         return selected_memory.value
     }
 
+    async function getDisksInfo() {
+        try {
+            const url = useRuntimeConfig().public.api_url + "/disks"
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const response = await $fetch(url, { headers })
+            floppy_disks.value = response.disks
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
+    async function getAvailableDisks() {
+        try {
+            const url = useRuntimeConfig().public.api_url + "/alldisks"
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const response = await $fetch(url, { headers })
+            available_disks.value = response.available_disks
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
     return {
         registers,
         display,
@@ -405,6 +432,8 @@ export const useMainStore = defineStore('main', () => {
         memory_start,
         memory_content,
         selected_memory,
+        floppy_disks,
+        available_disks,
         GetSource,
         isBreakpoint,
         isCurrentLine,
@@ -425,6 +454,8 @@ export const useMainStore = defineStore('main', () => {
         stop,
         step,
         stepover,
-        reset
+        reset,
+        getDisksInfo,
+        getAvailableDisks
     }
 })
