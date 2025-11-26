@@ -51,7 +51,7 @@ const code = computed(() => props.line.code)
 // const filename = computed(() => props.line.file + ":" + props.line.line)
 const filename = computed(() => {
     if (address.value && (props.line.code.length > 0)) {
-        return `(${address.value.toString(16).padStart(4, '0').toUpperCase()}):${props.line.line}`
+        return `(${formatNumber(address.value, 16, 4)}):${props.line.line}`
     }
     return `(----):${props.line.line}`
 })

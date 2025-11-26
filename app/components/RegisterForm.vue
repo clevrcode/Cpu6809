@@ -32,10 +32,6 @@ const props = defineProps({
     }
 })
 
-function format_value(val, radix, width) {
-    return val.toString(radix).padStart(width, '0').toUpperCase()
-}
-
 const in_value = ref(props.value)
 const new_value = ref(format_value(in_value.value, 16, 4))
 const hex_value = computed(() => format_value(in_value.value, 16, 4))

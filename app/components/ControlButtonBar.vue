@@ -7,6 +7,7 @@
         <ControlButton @click="store.stepover"><IconsStepOver /></ControlButton>
         <ControlButton @click="$emit('breakpoint')"><IconsBreakBtn /></ControlButton>
         <ControlButton @click="$emit('memory')"><IconsMemory /></ControlButton>
+        <ControlButton @click="$emit('watch')"><IconsWatchpoint /></ControlButton>
     </div>
 </template>
 

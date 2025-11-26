@@ -52,7 +52,7 @@ const breakpoints = computed(() => {
 })
 
 function hexAddress(addr) {
-    return addr.toString(16).padStart(4, '0').toUpperCase()
+    return formatNumber(addr, 16, 4)
 }
 
 function findModule(addr) {

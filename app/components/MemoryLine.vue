@@ -33,7 +33,7 @@ const asciiString = computed(() => {
     }
     return str
 })
-const hexAddress = computed(() => props.address.toString(16).padStart(4, '0').toUpperCase())
+const hexAddress = computed(() => formatNumber(props.address, 16, 4))
 const hexData = computed(() => {
     let tmpdata = []
     for (let i = 0; i < props.data.length; i++) {
@@ -41,7 +41,7 @@ const hexData = computed(() => {
         tmpdata.push({
             addr: props.address + i,
             idx: i,
-            mem: c.toString(16).padStart(2, '0').toUpperCase()
+            mem: formatNumber(c, 16, 2)
         })
         isActive.value[i] = (props.address + i) == store.selected_memory
     }

@@ -2,6 +2,12 @@ export const useMainStore = defineStore('main', () => {
 
     let timerId = 0
 
+    const module_alias = {
+        'shell': 'shell_21',
+        'clock': 'clock_60hz',
+        'clock2': 'clock2_soft'
+    }
+
     const registers = ref({
         "A": 0, "B": 0, "D": 0, "X": 0, "Y": 0, "U": 0, "S": 0, "PC": 0, "CC": 0, "DP": 0
     })
@@ -81,6 +87,14 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
+    function getAlias(fname) {
+        const name = fname.toLowerCase()
+        if (name in module_alias) {
+            return module_alias[name]
+        }
+        return name
+    }
+
     function getModuleType(module) {
         const mod = modules.value.find((mod) => mod.name === module)
         if (mod) {
@@ -102,9 +116,9 @@ export const useMainStore = defineStore('main', () => {
         return 0
     }
 
-    async function GetSource(source_name) {
+    async function getSourceListing(source_name) {
+        const filename = getAlias(source_name) + getModuleType(source_name) + ".lst"
         try {
-            const filename = source_name + getModuleType(source_name) + ".lst"
             source_content.value = []
             // const url = useRuntimeConfig().public.api_url + "/" + filename
             const url = useRuntimeConfig().public.api_url + "/source"
@@ -122,7 +136,7 @@ export const useMainStore = defineStore('main', () => {
 
         } catch (error) {
             console.log(error)
-            throw error
+            throw `File not found: [${filename}]`
         }
     }
 
@@ -419,10 +433,31 @@ export const useMainStore = defineStore('main', () => {
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
             const response = await $fetch(url, { 
                 method: 'PUT', 
-                headers,                     
+                headers,
                 query: {
                     drive, 
                     name
+                }
+            })
+            floppy_disks.value = response.disks
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
+    async function createDisk(drive, name, dbl_side, nb_tracks) {
+        try {
+            const url = useRuntimeConfig().public.api_url + "/disk"
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const response = await $fetch(url, { 
+                method: 'POST', 
+                headers,
+                query: {
+                    drive,
+                    name,
+                    dbl_side,
+                    nb_tracks
                 }
             })
             floppy_disks.value = response.disks
@@ -450,6 +485,18 @@ export const useMainStore = defineStore('main', () => {
         }
     }
 
+    async function getTracingInfo() {
+        try {
+            const url = useRuntimeConfig().public.api_url + "/tracing"
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' }
+            const response = await $fetch(url, { headers })
+            return response
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
     return {
         registers,
         display,
@@ -471,7 +518,7 @@ export const useMainStore = defineStore('main', () => {
         selected_memory,
         floppy_disks,
         available_disks,
-        GetSource,
+        getSourceListing,
         isBreakpoint,
         isCurrentLine,
         getRegisters,
@@ -495,6 +542,8 @@ export const useMainStore = defineStore('main', () => {
         getDisksInfo,
         getAvailableDisks,
         mountDisk,
-        unmountDisk
+        unmountDisk,
+        createDisk,
+        getTracingInfo
     }
 })

@@ -15,6 +15,12 @@
         />
     </transition>
     <transition name="slideform">
+        <WatchpointForm v-if="showWatchpointForm" class="watch-form"
+            @cancel="canCloseWatchpoint"
+            @submit="submitWatchpointRequest"
+        />
+    </transition>
+    <transition name="slideform">
         <BreakpointList v-if="showBreakpoints" class="breakpoint-form"
             @cancel="canCloseBreakpoints"
             @submit="submitBreakpointRequest"
@@ -25,7 +31,7 @@
         <TheHeader></TheHeader>
         <div class="control-panel">
             <ConditionCode />
-            <ControlButtonBar @memory="openMemory" @breakpoint="openBreakpoints" @cpurun="run"/>
+            <ControlButtonBar @watch="openWatchpoint" @memory="openMemory" @breakpoint="openBreakpoints" @cpurun="run"/>
         </div>
         <div class="page_separator">
         </div>
@@ -48,9 +54,14 @@
     const showRegForm = ref(false)
     const showBreakpoints = ref(false)
     const showMemoryForm = ref(false)
+    const showWatchpointForm = ref(false)
     const regFormName = ref("")
     const regFormValue = ref(0)
     const regValSize = ref(16)
+
+    function openWatchpoint() {
+        showWatchpointForm.value = !showWatchpointForm.value
+    }
 
     function openMemory() {
         showMemoryForm.value = !showMemoryForm.value
@@ -65,6 +76,14 @@
         regFormName.value = name
         regFormValue.value = store.registers[name]
         regValSize.value = size
+    }
+
+    function canCloseWatchpoint() {
+        showWatchpointForm.value = false
+    }
+
+    function submitWatchpointRequest() {
+        console.log("submit watchpoint")
     }
 
     function canCloseRegister() {
@@ -100,7 +119,6 @@
             console.log(err)
         }
     }
-
 
     let timerId = 0
 
@@ -175,7 +193,6 @@
     position: fixed;
     top: 50%;
     right: 0%;
-    /* width: 50%; */
     z-index: 1;
 }
 
@@ -183,7 +200,13 @@
     position: fixed;
     top: 25%;
     right: 0%;
-    /* width: 80%; */
+    z-index: 1;
+}
+
+.watch-form {
+    position: fixed;
+    top: 25%;
+    right: 0%;
     z-index: 1;
 }
 
@@ -191,7 +214,6 @@
     position: fixed;
     top: 40%;
     right: 0%;
-    /* width: 50%; */
     z-index: 1;
 }
 

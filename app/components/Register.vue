@@ -23,15 +23,11 @@ let prevValue = 0
 const modified = ref(false)
 const store = useMainStore()
 
-function format_value(val, radix, width) {
-    return val.toString(radix).padStart(width, '0').toUpperCase()
-}
-
 const hex_value = computed(() => {
     try {
         modified.value = store.registers[props.name] != prevValue
         prevValue = store.registers[props.name]
-        return format_value(store.registers[props.name], 16, props.large ? 4 : 2)
+        return formatNumber(store.registers[props.name], 16, props.large ? 4 : 2)
     } catch (err) {
         console.log(err)
     }

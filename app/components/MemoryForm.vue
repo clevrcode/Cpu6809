@@ -56,8 +56,8 @@ const store = useMainStore()
 
 const start_value = ref("")
 const mem_change = ref("")
-const mem_origin = computed(() => store.memory_start?.toString(radix.value).padStart(4, '0').toUpperCase())
-const mem_select = computed(() => store.selected_memory?.toString(radix.value).padStart(4, '0').toUpperCase())
+const mem_origin = computed(() => formatNumber(store.memory_start, radix.value, 4))
+const mem_select = computed(() => formatNumber(store.selected_memory, radix.value, 4))
 
 const memdata = ref([])
 const address = ref([])
@@ -176,11 +176,6 @@ onMounted(() => {
     console.log(`on mounted ${store.memory_start} ${store.getSelectedMemory()}`)
     if (store.memory_start) {
         sendMemoryRequest(store.memory_start, 256)
-        // const selected = store.getSelectedMemory()
-        // if (selected && ((selected - store.memory_start) < 256)) {
-        //     console.log(`update selected memory to: ${selected} : ${store.memory_content[selected - store.memory_start]}`)
-        //     mem_change.value = store.memory_content[selected - store.memory_start].toString(radix.value).padStart(2, '0').toUpperCase()
-        // }
         setOriginRegister()
     } else {
         sendMemoryRequest(0, 256)

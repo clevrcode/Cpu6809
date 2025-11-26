@@ -1,5 +1,10 @@
 <template>
     <div>
+        <base-dialog
+            :show="!!errorMsg"
+            :title=errorMsg
+            @close="handleError">
+        </base-dialog>
         <div class="debug-header">
             <BaseButton @click="getFile" :enabled="button_enabled">Get File</BaseButton>
             <module-selector :module="selected_module" @change="moduleChanged"></module-selector>
@@ -19,6 +24,11 @@
 
 const store = useMainStore()
 const selected_module = ref("")
+const errorMsg = ref(null)
+
+function handleError() {
+    errorMsg.value = null
+}
 
 const sourceWnd = useTemplateRef('source-window')
 const { x, y } = useScroll(sourceWnd)
@@ -36,10 +46,11 @@ async function getFile() {
         console.log("...")
         if (selected_module.value) {
             console.log("get file button clicked")
-            await store.GetSource(selected_module.value)
+            await store.getSourceListing(selected_module.value)
         }
     } catch (error) {
         console.log(error)
+        errorMsg.value = error
     }
 }
 

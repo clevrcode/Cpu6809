@@ -22,7 +22,7 @@ const props = defineProps({
     }
 })
 
-const moduleSelected = computed(() => props.module)
+const moduleSelected = ref(props.module)
 const modules = computed(() => store.modules)
 
 function moduleChanged() {
