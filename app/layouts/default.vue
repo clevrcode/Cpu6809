@@ -64,6 +64,7 @@
     }
 
     function openMemory() {
+        console.log("toggle memory form")
         showMemoryForm.value = !showMemoryForm.value
     }
 
@@ -72,6 +73,7 @@
     }
 
     function openForm(name, size) {
+        console.log("show reg form")
         showRegForm.value = !showRegForm.value
         regFormName.value = name
         regFormValue.value = store.registers[name]
@@ -122,17 +124,19 @@
 
     let timerId = 0
 
-    function run() {
+    async function run() {
         console.log("run cpu...")
+        await store.run("200")
         runOnce()
     }
+
     async function runOnce()
     {
         try {
-            await store.run("200")
             await store.updateDisplay()
-            if (!store.break_active && !store.wait) {
-                timerId = setTimeout(runOnce, 50)
+            await store.getRegisters()
+            if (!store.break_active) {
+                timerId = setTimeout(runOnce, 100)
             } else {
                 await store.getModuleList()
                 timerId = 0
@@ -148,7 +152,7 @@
         store.getRegisters()
         store.updateDisplay()
         store.getBreakpoints()
-        store.getModuleList()
+        // store.getModuleList()
     }
 
     onMounted(() => {

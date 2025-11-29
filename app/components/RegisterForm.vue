@@ -33,15 +33,15 @@ const props = defineProps({
 })
 
 const in_value = ref(props.value)
-const new_value = ref(format_value(in_value.value, 16, 4))
-const hex_value = computed(() => format_value(in_value.value, 16, 4))
-const dec_value = computed(() => format_value(in_value.value, 10, 0))
+const new_value = ref(formatNumber(in_value.value, 16, 4))
+const hex_value = computed(() => formatNumber(in_value.value, 16, 4))
+const dec_value = computed(() => formatNumber(in_value.value, 10, 0))
 
 function toggleBit(bit) {
     try {
         const mask = 1 << (props.size - bit - 1)
         in_value.value = in_value.value ^ mask
-        new_value.value = format_value(in_value.value, 16, 4)
+        new_value.value = formatNumber(in_value.value, 16, 4)
     } catch (err) {
         console.log(err)
     }

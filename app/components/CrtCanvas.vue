@@ -82,10 +82,17 @@ function dataInput(ev) {
     if (ev.key === "Enter") {
         b64cmd = Buffer.from(command.value + "\r").toString('base64')
     } else if (((ev.key == "C")||(ev.key == "c")) && ev.ctrlKey) {
-        const buffer = 
         b64cmd = Buffer.from([0x03]).toString('base64')
     } else if (ev.key == "Escape") {
         b64cmd = Buffer.from([0x1b]).toString('base64')
+    } else if (ev.key == "ArrowUp") {
+        b64cmd = Buffer.from([0x0C]).toString('base64')
+    } else if (ev.key == "ArrowDown") {
+        b64cmd = Buffer.from([0x0A]).toString('base64')
+    } else if (ev.key == "ArrowLeft") {
+        b64cmd = Buffer.from([0x08]).toString('base64')
+    } else if (ev.key == "ArrowRight") {
+        b64cmd = Buffer.from([0x09]).toString('base64')
     }
     if (b64cmd) {
         console.log(`send command: ${b64cmd}`)

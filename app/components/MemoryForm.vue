@@ -56,12 +56,14 @@ const store = useMainStore()
 
 const start_value = ref("")
 const mem_change = ref("")
-const mem_origin = computed(() => formatNumber(store.memory_start, radix.value, 4))
-const mem_select = computed(() => formatNumber(store.selected_memory, radix.value, 4))
 
 const memdata = ref([])
 const address = ref([])
 const radix = ref(16)
+
+const mem_origin = computed(() => formatNumber(store.memory_start, radix.value, 4))
+// const mem_select = computed(() => formatNumber(store.selected_memory, radix.value, 4))
+const mem_select = computed(() => store.selected_memory ? formatNumber(store.selected_memory, radix.value, 4) : "")
 
 const reg_selected = ref("")
 

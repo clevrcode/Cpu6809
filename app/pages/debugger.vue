@@ -10,12 +10,8 @@
             <module-selector :module="selected_module" @change="moduleChanged"></module-selector>
             <h1>MODULE : {{ module }}</h1>
         </div>
-        <div class="file-window">
-            <div class="file-content" ref="source-window">
-                <div v-for="(line, index) in store.source_content">
-                    <debug-line :index :line></debug-line>
-                </div>
-            </div>
+        <div>
+            <source-window />
         </div>
     </div>
 </template>
@@ -30,10 +26,8 @@ function handleError() {
     errorMsg.value = null
 }
 
-const sourceWnd = useTemplateRef('source-window')
-const { x, y } = useScroll(sourceWnd)
+const module = computed(() => store.getModuleInfo().current_module ? store.getModuleInfo().current_module : "")
 
-const module = computed(() => store.current_module)
 const button_enabled = computed(() => selected_module.value.length > 0)
 
 function moduleChanged(event) {
@@ -54,18 +48,6 @@ async function getFile() {
     }
 }
 
-const pgm_counter = computed(() => store.registers["PC"])
-watch(pgm_counter, (pc, oldpc) => {
-    const src = store.getCurrentSource()
-    if (src && (src == store.current_module)) {
-        const line = store.source_content.find((el) => el.address == pc)
-        if (line >= 0) {
-            console.log(`current line: ${line}, ${pc}`)
-        }
-    }
-})
-
-
 onMounted(() => {
     console.log("debugger mounted")
     if (store.getCurrentSource()) {
@@ -73,11 +55,6 @@ onMounted(() => {
         selected_module.value = store.getCurrentSource()
     } else {
         console.log("No source loaded")
-        selected_module.value = store.current_module
-    }
-    if (store.source_content?.length > 0) {
-        console.log(`scroll height: ${store.source_content.length}`)
-        y.value = (store.source_content.length * 18) / 2
     }
 })
 
@@ -104,17 +81,5 @@ onMounted(() => {
     margin: 0;
 }
 
-.file-window {
-    /* padding: 0 2%; */
-    width: 95%;
-}
-
-.file-content {
-    background-color: white;
-    height: 75vh; /* Set a fixed height for the div */
-    width: 100%; /* Optional: Set a fixed width */
-    border: 1px solid #ccc; /* Optional: Add a border for visibility */
-    overflow: auto; /* Add scrollbars only when content overflows */
-}
 
 </style>

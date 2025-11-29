@@ -21,16 +21,22 @@ export const useMainStore = defineStore('main', () => {
     const display_size = ref({ x: 0, y: 0 })
     const breakpoints = ref([])
     const modules = ref([])
-    const current_module = ref("")
-
+    
     const selected_memory = ref(null)
-    const memory_start = ref(null)
+    const memory_start = ref(0)
     const memory_content = ref([])
 
-    const current_source = ref(null)
-    const base_address = ref(0)
-    const source_base = ref(0)
-    const source_content = ref([])
+    const moduleInfo = ref({
+        "current_module": null,
+        "base_address": 0
+    })
+    
+    const sourceInfo = ref({
+        "current_source": null,
+        "base_address": 0,
+        "base": 0,
+        "content": []
+    })
 
     const floppy_disks = ref([])
     const available_disks = ref([])
@@ -46,33 +52,44 @@ export const useMainStore = defineStore('main', () => {
         return address == registers["PC"]
     }
 
+    function getModuleInfo() {
+        return moduleInfo.value
+    }
+
     function setCurrentModule() {
         const module = modules.value.find((mod) => registers.value.PC >= mod.start && registers.value.PC < mod.end)
         if (module) {
-            current_module.value = module.name
-            base_address.value = module.start
+            moduleInfo.value.current_module = module.name
+            moduleInfo.value.base_address   = module.start
             // console.log(`module: ${current_module.value} base address ${base_address.value}`)
         } else {
-            current_module.value = ""
-            base_address.value = 0
+            moduleInfo.value.current_module = null
+            moduleInfo.value.base_address   = 0
         }
+    }
+
+    function getSourceContent() {
+        return sourceInfo.value.content
     }
 
     function setSourceBase(source) {
         console.log(`set source: ${source}`)
         const module = modules.value.find((mod) => mod.name === source)
         if (module) {
-            current_source.value = source
-            source_base.value = module.start
+            sourceInfo.value.current_source = source
+            sourceInfo.value.base = module.start
         } else {
-            current_source.value = ""
-            source_base.value = 0
+            sourceInfo.value.current_source = ""
+            sourceInfo.value.base = 0
         }
-        console.log(`source: ${current_source.value}, base: ${source_base.value}`)
+        console.log(`source: ${sourceInfo.value.current_source}, base: ${sourceInfo.value.base}`)
     }
 
     function getCurrentSource() {
-        return current_source.value
+        return sourceInfo.value.current_source
+    }
+    function getSourceBaseAddress() {
+        return sourceInfo.value.base
     }
 
     function setRegisters(reg) {
@@ -119,11 +136,11 @@ export const useMainStore = defineStore('main', () => {
     async function getSourceListing(source_name) {
         const filename = getAlias(source_name) + getModuleType(source_name) + ".lst"
         try {
-            source_content.value = []
+            sourceInfo.value.content = []
             // const url = useRuntimeConfig().public.api_url + "/" + filename
             const url = useRuntimeConfig().public.api_url + "/source"
             const headers = { 'X-Requested-With': 'XMLHttpRequest' }
-            console.log(`get ${url}`)
+            console.log(`get ${filename}`)
             // const response = await $fetch(url, { parseResponse: (txt) => txt })
             const response = await $fetch(url, {
                 headers,
@@ -132,8 +149,7 @@ export const useMainStore = defineStore('main', () => {
                 }
             })
             setSourceBase(source_name)
-            source_content.value = response;
-
+            sourceInfo.value.content = response;
         } catch (error) {
             console.log(error)
             throw `File not found: [${filename}]`
@@ -509,10 +525,6 @@ export const useMainStore = defineStore('main', () => {
         map_type,
         breakpoints,
         modules,
-        current_module,
-        base_address,
-        source_content,
-        source_base,
         memory_start,
         memory_content,
         selected_memory,
@@ -523,7 +535,10 @@ export const useMainStore = defineStore('main', () => {
         isCurrentLine,
         getRegisters,
         setRegister,
+        getModuleInfo,
         getCurrentSource,
+        getSourceBaseAddress,
+        getSourceContent,
         getModuleList,
         updateDisplay,
         getBreakpoints,

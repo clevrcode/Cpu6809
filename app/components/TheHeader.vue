@@ -3,17 +3,17 @@
         <div class="header_title">
             CPU 6809 Debugger
         </div>
-        <div class="header_bar">
-        </div>
+        <nav class="header-nav">
+            <li class="header-nav_item">
+                <NuxtLink to="/">Console</NuxtLink>                
+            </li>
+            <li class="header-nav_item">
+                <NuxtLink to="/debugger">Source</NuxtLink>
+            </li>
+        </nav>
     </div>
-    <nav class="header-nav">
-        <li class="header-nav_item">
-            <NuxtLink to="/">Console</NuxtLink>                
-        </li>
-        <li class="header-nav_item">
-            <NuxtLink to="/debugger">Source</NuxtLink>
-        </li>
-    </nav>
+    <div class="header-bar">
+    </div>
 </template>
 
 <script setup>
@@ -23,6 +23,9 @@
 <style scoped>
 
 .header {
+    display: flex;
+    flex-direction: row;
+    background-color: #fb660c;
     margin: 0;
     padding: 0;
 }
@@ -33,28 +36,32 @@
     font-size: 2.5rem;
     font-weight: 400;
     font-style: normal;
-    background-color: #fb660c;
     color: white;
     border-bottom: solid 2px white;
     width: 100%;
     padding: 0 10px;
 }
-.header_bar {
+
+.header-bar {
     background-color: #f99a08;
     height: 20px;
+    width: 100%;
     padding: 0;
     margin: 0;
 }
 
 .header-nav {
-    background-color: black;;
+    display: flex;
+    flex-direction: row;
+    /* background-color: black; */
     font-weight: 300;
     font-style: normal;
+    border-bottom: solid 2px white;
 }
 
 .header-nav_item {
     display: inline-block;
-    padding: 1.0rem 0.5rem 1.0rem 0.5rem;
+    padding: 1.0rem;
 }
 
 .header-nav_item a {
@@ -73,10 +80,7 @@
 
 .header-nav_item a:active,
 .header-nav_item a:hover {
-    color: red;
-    /* border-bottom: #b5dcad 1px solid; */
-    background-position: 100% 100%; /*OR bottom right*/
-    background-size: 100% 1px;
+    color: black;
 }
 a.router-link-active {
     color: yellow;
