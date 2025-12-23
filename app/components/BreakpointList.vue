@@ -100,6 +100,7 @@ function UseModuleChanged() {
 
 onMounted(async () => {
     try {
+        await store.getBreakpoints()
         await store.getModuleList()
         const info = store.getModuleInfo()
         console.log(`module: ${info.current_module}`)

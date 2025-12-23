@@ -32,7 +32,7 @@ const props = defineProps({
 })
 
 const image = useRuntimeConfig().public.img_url + "FloppyFacePlate.png"
-const led_img = useRuntimeConfig().public.img_url + "red_led.png"
+const led_img = useRuntimeConfig().public.img_url + "red_led_off.png"
 
 const disk_label = computed(() => {
     if (props.disk_file.length == 0) {
