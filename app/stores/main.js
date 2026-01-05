@@ -21,13 +21,14 @@ export const useMainStore = defineStore('main', () => {
     const display_size = ref({ x: 0, y: 0 })
     const breakpoints = ref([])
     const modules = ref([])
+    const currPC = computed(() => registers.value["PC"])
     
     const selected_memory = ref(null)
     const memory_start = ref(0)
     const memory_content = ref([])
 
-    const moduleInfo = ref({
-        "current_module": null,
+    const module_info = ref({
+        "current_module": "",
         "base_address": 0
     })
     
@@ -37,6 +38,7 @@ export const useMainStore = defineStore('main', () => {
         "base": 0,
         "content": []
     })
+    const source_loaded = ref(false)
 
     const floppy_disks = ref([])
     const available_disks = ref([])
@@ -51,20 +53,16 @@ export const useMainStore = defineStore('main', () => {
     function isCurrentLine(address) {
         return address == registers["PC"]
     }
-
-    function getModuleInfo() {
-        return moduleInfo.value
-    }
-
+    
     function setCurrentModule() {
         const module = modules.value.find((mod) => registers.value.PC >= mod.start && registers.value.PC < mod.end)
         if (module) {
-            moduleInfo.value.current_module = module.name
-            moduleInfo.value.base_address   = module.start
+            module_info.value.current_module = module.name
+            module_info.value.base_address   = module.start
             // console.log(`module: ${current_module.value} base address ${base_address.value}`)
         } else {
-            moduleInfo.value.current_module = null
-            moduleInfo.value.base_address   = 0
+            module_info.value.current_module = null
+            module_info.value.base_address   = 0
         }
     }
 
@@ -93,12 +91,12 @@ export const useMainStore = defineStore('main', () => {
     }
 
     function setRegisters(reg) {
-        registers.value = reg.registers
-        load.value = reg.load
-        map_type.value = reg.map_type
+        registers.value    = reg.registers
+        load.value         = reg.load
+        map_type.value     = reg.map_type
         break_active.value = reg.break
-        wait.value = reg.wait
-        halted.value = reg.halted
+        wait.value         = reg.wait
+        halted.value       = reg.halted
         if (map_type.value === "RAM") {
             setCurrentModule()
         }
@@ -136,6 +134,7 @@ export const useMainStore = defineStore('main', () => {
     async function getSourceListing(source_name) {
         const filename = getAlias(source_name) + getModuleType(source_name) + ".lst"
         try {
+            source_loaded.value = false
             sourceInfo.value.content = []
             // const url = useRuntimeConfig().public.api_url + "/" + filename
             const url = useRuntimeConfig().public.api_url + "/source"
@@ -148,8 +147,9 @@ export const useMainStore = defineStore('main', () => {
                     file: filename
                 }
             })
-            setSourceBase(source_name)
             sourceInfo.value.content = response;
+            setSourceBase(source_name)
+            source_loaded.value = true
         } catch (error) {
             console.log(error)
             throw `File not found: [${filename}]`
@@ -515,6 +515,7 @@ export const useMainStore = defineStore('main', () => {
 
     return {
         registers,
+        currPC,
         display,
         display_type,
         display_size,
@@ -525,6 +526,8 @@ export const useMainStore = defineStore('main', () => {
         map_type,
         breakpoints,
         modules,
+        module_info,
+        source_loaded,
         memory_start,
         memory_content,
         selected_memory,
@@ -535,7 +538,6 @@ export const useMainStore = defineStore('main', () => {
         isCurrentLine,
         getRegisters,
         setRegister,
-        getModuleInfo,
         getCurrentSource,
         getSourceBaseAddress,
         getSourceContent,

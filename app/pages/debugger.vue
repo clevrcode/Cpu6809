@@ -11,7 +11,7 @@
             <h1>MODULE : {{ module }}</h1>
         </div>
         <div>
-            <source-window />
+            <source-window @src_changed="loadSource"/>
         </div>
     </div>
 </template>
@@ -26,7 +26,7 @@ function handleError() {
     errorMsg.value = null
 }
 
-const module = computed(() => store.getModuleInfo().current_module ? store.getModuleInfo().current_module : "")
+const module = computed(() => store.module_info.current_module)
 
 const button_enabled = computed(() => selected_module.value.length > 0)
 
@@ -48,13 +48,25 @@ async function getFile() {
     }
 }
 
-onMounted(() => {
+async function loadSource() {
+    if (store.module_info.current_module && (store.module_info.current_module != "")) {
+        console.log(`load source '${store.module_info.current_module}'`)
+        await store.getSourceListing(store.module_info.current_module)
+        selected_module.value = store.module_info.current_module
+    }
+    else {
+        selected_module.value = ""
+    }
+}
+
+
+onMounted(async () => {
     console.log("debugger mounted")
     if (store.getCurrentSource()) {
         console.log(`current source: ${store.getCurrentSource()}`)
         selected_module.value = store.getCurrentSource()
     } else {
-        console.log("No source loaded")
+        loadSource()
     }
 })
 

@@ -1,35 +1,36 @@
 <template>
-    <div v-if="line_comment">
-        <div class="debug-line-comment" :class="{fanfold}">
-            <div class="brkpt">
-                <div> </div>
-            </div>
-            <div class="filename">{{ filename }}</div>
-            <div class="addr">{{ addr }}</div>
-            <div class="code">{{ code }}</div>
-            <div class="comments"><pre>{{ comments }}</pre></div>
-        </div>        
-    </div>
-    <div v-else>
-        <div class="debug-line-code" :class="{fanfold, brkpt_active, current_line}">
-            <div class="brkpt" :class="{canset}" v-if="brkpt_active" @click="toggleBreakpoint">
-                <IconsBreakpoint />
-            </div>
-            <div class="brkpt" :class="{canset}" v-else @click="toggleBreakpoint">
-                <div v-if="current_line">
-                    <IconsPointer />
+    <div class="debug-line">
+        <div v-if="line_comment">
+            <div class="debug-line-comment" :class="{fanfold}">
+                <div class="brkpt">
+                    <div> </div>
                 </div>
-            </div>
-            <div class="filename">{{ filename }}</div>
-            <div class="addr">{{ addr }}</div>
-            <div class="code">{{ code }}</div>
-            <div class="label">{{ label }}</div>
-            <div class="opcode">{{ opcode }}</div>
-            <div class="operand">{{ operand }}</div>
-            <div class="comments">{{ comments }}</div>
-        </div>        
+                <div class="filename">{{ filename }}</div>
+                <div class="addr">{{ addr }}</div>
+                <div class="code">{{ code }}</div>
+                <div class="comments"><pre>{{ comments }}</pre></div>
+            </div>        
+        </div>
+        <div v-else>
+            <div class="debug-line-code" :class="{fanfold, brkpt_active, current_line}">
+                <div class="brkpt" :class="{canset}" v-if="brkpt_active" @click="toggleBreakpoint">
+                    <IconsBreakpoint />
+                </div>
+                <div class="brkpt" :class="{canset}" v-else @click="toggleBreakpoint">
+                    <div v-if="current_line">
+                        <IconsPointer />
+                    </div>
+                </div>
+                <div class="filename">{{ filename }}</div>
+                <div class="addr">{{ addr }}</div>
+                <div class="code">{{ code }}</div>
+                <div class="label">{{ label }}</div>
+                <div class="opcode">{{ opcode }}</div>
+                <div class="operand">{{ operand }}</div>
+                <div class="comments">{{ comments }}</div>
+            </div>        
+        </div>
     </div>
-     
 </template>
 
 <script setup>
@@ -82,7 +83,7 @@ const canset = computed(() => (props.line.address != null) && (props.line.code !
 
 const current_line = computed(() => {
     if ((props.curline != null) && (props.curline == props.line.line)) {
-        console.log(`calc current_line ${props.curline}`)
+        // console.log(`calc current_line ${props.curline}`)
         return true
     }
     return false
@@ -144,6 +145,10 @@ function toggleBreakpoint() {
 </script>
 
 <style scoped>
+
+.debug-line {
+    height: 18px;
+}
 
 .debug-line-comment {
     display: grid;
