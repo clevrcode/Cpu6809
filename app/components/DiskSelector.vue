@@ -93,25 +93,29 @@ function cancel() {
 <style scoped>
 
 .disk-selector-form {
-    background-color: #f99a08;
-    border-radius: 8px;;
-    /* height: 500px; */
+    /* background-color: #f99a08; */
+    background-color: white;
+    border: solid 2px black;
+    /* border-radius: 8px; */
 }
 
 .disk-form {
-    margin: 20px;
+    margin: 1px;
+    /* background-color: #f99a08; */
+    background-color: white;
+    /* border-radius: 8px; */
 }
 
 fieldset {
-    margin: 20px 0;
+    margin: 20px 5px;
 }
 
 .dsk-selection-radio {
-    padding: 20px;
+    padding: 20px 5px;
 }
 
 .dsk-creation-radio {
-    padding: 20px;
+    padding: 20px 5px;
 }
 
 
@@ -124,6 +128,7 @@ fieldset {
     flex-direction: row;
     justify-content: space-between;
     margin: 10px;
+    padding: 10px;
 }
 
 </style>
