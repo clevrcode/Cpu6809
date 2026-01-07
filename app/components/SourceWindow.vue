@@ -40,9 +40,13 @@ watch(source_loaded, (loaded, _) => {
     if (loaded) {
         console.log("new source loaded")
         console.log(`set scroll pos to pc: ${store.currPC}`)
-        scrollToLine(store.currPC)
+        setTimeout(updateScroll, 1000)
     }
 })
+
+function updateScroll() {
+    scrollToLine(store.currPC)
+}
 
 function scrollToLine(pc) {
     const relpc = pc - module_base.value
