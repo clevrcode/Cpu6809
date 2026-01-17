@@ -7,8 +7,15 @@ export default defineNuxtConfig({
     runtimeConfig: {
       public: {
         img_url: 'http://localhost:3000/',
-        src_url: 'http://localhost:3000/sources',
         api_url: 'http://127.0.0.1:8080'
+      }
+    }
+  },
+  $production: {
+    runtimeConfig: {
+      public: {
+        img_url: 'http://localhost:3000/',
+        api_url: 'http://192.168.2.15:8080'
       }
     }
   },
