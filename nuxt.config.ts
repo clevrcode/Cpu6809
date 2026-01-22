@@ -8,7 +8,8 @@ export default defineNuxtConfig({
       public: {
         img_url: 'http://localhost:3000/',
         src_url: 'http://localhost:3000/sources',
-        api_url: 'http://127.0.0.1:8080'
+        api_url: 'http://127.0.0.1:8080',
+        ws_url: 'ws://localhost:6809'
       }
     }
   },

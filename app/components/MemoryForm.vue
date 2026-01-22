@@ -52,7 +52,7 @@
 
 <script setup>
 
-const store = useMainStore()
+const store = useCpuStore()
 
 const start_value = ref("")
 const mem_change = ref("")
@@ -61,10 +61,11 @@ const memdata = ref([])
 const address = ref([])
 const radix = ref(16)
 
-const mem_origin = computed(() => formatNumber(store.memory_start, radix.value, 4))
-// const mem_select = computed(() => formatNumber(store.selected_memory, radix.value, 4))
-const mem_select = computed(() => store.selected_memory ? formatNumber(store.selected_memory, radix.value, 4) : "")
+const mem_start    = computed(() => store.memory?.address)
+const mem_select   = computed(() => store.selected_memory ? formatNumber(store.selected_memory, radix.value, 4) : "")
+const mem_updated  = computed(() => store.memory.updated)
 
+const mem_origin   = ref("")
 const reg_selected = ref("")
 
 function originInput(ev) {
@@ -78,14 +79,24 @@ function setStart() {
     sendMemoryRequest(parseInt(start_value.value, radix.value), 256)
 }
 
-watch(reg_selected, (curr, old) => {
-    // console.log(`selection changed from ${old} to ${curr}`)
-    if (curr.length > 0) {
-        sendMemoryRequest(store.registers[curr], 256)
+watch(mem_updated, (curr, _) => {
+    address.value = []
+    memdata.value = []
+    for (let x=0; x < store.memory.data.length; x += 16) {
+        address.value.push(store.memory.address + x)
+        memdata.value.push(store.memory.data.slice(x, x+16))
     }
 })
 
-watch(mem_origin, (curr, old) => {
+watch(reg_selected, (curr, _) => {
+    // console.log(`selection changed from ${old} to ${curr}`)
+    if (curr.length > 0) {
+        sendMemoryRequest(store.cpu_state.registers[curr], 256)
+    }
+})
+
+watch(mem_start, (curr, _) => {
+    mem_origin.value = computed(() => formatNumber(curr, radix.value, 4))
     setOriginRegister()
 })
 
@@ -106,68 +117,58 @@ function setMemory() {
         const value = parseInt(mem_change.value, radix.value)
         console.log(`set memory: ${address} ${value}`)
         store.setMemory(address, value)
-        sendMemoryRequest(store.memory_start, 256)
+        sendMemoryRequest(store.memory.address, 256)
     }
 }
 
-async function sendMemoryRequest(addr, length) {
-    try {
-        await store.getMemory(addr, length)
-        address.value = []
-        memdata.value = []
-        for (let x=0; x < store.memory_content.length; x += 16) {
-            address.value.push(store.memory_start + x)
-            memdata.value.push(store.memory_content.slice(x, x+16))
-        }
-    } catch (error) {
-        console.log(error)
-    }
+function sendMemoryRequest(addr, length) {
+    store.getMemory(addr, length)
 }
 
 function refresh() {
-    sendMemoryRequest(store.memory_start, 256)
+    sendMemoryRequest(store.memory.address, 256)
 }
 
 function backwardPage() {
-    if (store.memory_start >= 0x100) {
-        sendMemoryRequest(store.memory_start - 0x100, 256)
+    if (store.memory.address >= 0x100) {
+        sendMemoryRequest(store.memory.address - 0x100, 256)
     } else {
         sendMemoryRequest(0, 256)
     }    
 }
  
 function backwardLine() {
-    if (store.memory_start >= 0x10) {
-        sendMemoryRequest(store.memory_start - 0x10, 256)
+    if (store.memory.address >= 0x10) {
+        sendMemoryRequest(store.memory.address - 0x10, 256)
     } else {
         sendMemoryRequest(0, 256)
     }    
 }
 function forwardLine() {
-    if (store.memory_start < 0xFF00) {
-        sendMemoryRequest(store.memory_start + 0x10, 256)
+    if (store.memory.address < 0xFF00) {
+        sendMemoryRequest(store.memory.address + 0x10, 256)
     } else {
         sendMemoryRequest(0xFF00, 256)
     }    
 }
 function forwardPage() {
-    if (store.memory_start <= 0xFE00) {
-        sendMemoryRequest(store.memory_start + 0x100, 256)
+    if (store.memory.address <= 0xFE00) {
+        sendMemoryRequest(store.memory.address + 0x100, 256)
     } else {
         sendMemoryRequest(0xFF00, 256)
     }    
 }
 
 function setOriginRegister() {
-    if (store.memory_start == store.registers["X"]) {
+    if (store.memory.address == store.cpu_state.registers["X"]) {
         reg_selected.value = "X"
-    } else if (store.memory_start == store.registers["Y"]) {
+    } else if (store.memory.address == store.cpu_state.registers["Y"]) {
         reg_selected.value = "Y"
-    } else if (store.memory_start == store.registers["U"]) {
+    } else if (store.memory.address == store.cpu_state.registers["U"]) {
         reg_selected.value = "U"
-    } else if (store.memory_start == store.registers["S"]) {
+    } else if (store.memory.address == store.cpu_state.registers["S"]) {
         reg_selected.value = "S"
-    } else if (store.memory_start == store.registers["PC"]) {
+    } else if (store.memory.address == store.cpu_state.registers["PC"]) {
         reg_selected.value = "PC"
     } else {
         reg_selected.value = ""
@@ -175,9 +176,9 @@ function setOriginRegister() {
 }
 
 onMounted(() => {
-    console.log(`on mounted ${store.memory_start} ${store.getSelectedMemory()}`)
-    if (store.memory_start) {
-        sendMemoryRequest(store.memory_start, 256)
+    if (store.memory) {
+        console.log(`on mounted ${store.memory.address} ${store.selected_memory}`)
+        sendMemoryRequest(store.memory.address, 256)
         setOriginRegister()
     } else {
         sendMemoryRequest(0, 256)

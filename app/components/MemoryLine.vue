@@ -8,7 +8,7 @@
 
 <script setup>
 
-const store = useMainStore()
+const store = useCpuStore()
 
 const emit = defineEmits(['select'])
 
@@ -18,8 +18,6 @@ const props = defineProps({
 })
 
 const isActive = ref([])
-
-//computed((addr) => store.getSelectedMemory() == addr)
 
 const asciiString = computed(() => {
     let str = "";

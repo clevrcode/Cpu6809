@@ -18,7 +18,7 @@
 
 <script setup>
 
-const store = useMainStore()
+const store = useCpuStore()
 const selected_module = ref("")
 const errorMsg = ref(null)
 
@@ -26,7 +26,12 @@ function handleError() {
     errorMsg.value = null
 }
 
-const module = computed(() => store.module_info.current_module)
+const module = computed(() => {
+    if (store.current_module) {
+        return store.current_module.name
+    }
+    return "----"
+})
 
 const button_enabled = computed(() => selected_module.value.length > 0)
 
@@ -35,12 +40,11 @@ function moduleChanged(event) {
     selected_module.value = event.target.value
 }
 
-async function getFile() {
+function getFile() {
     try {
-        console.log("...")
         if (selected_module.value) {
             console.log("get file button clicked")
-            await store.getSourceListing(selected_module.value)
+            store.getSourceListing(selected_module.value)
         }
     } catch (error) {
         console.log(error)
@@ -49,22 +53,21 @@ async function getFile() {
 }
 
 async function loadSource() {
-    if (store.module_info.current_module && (store.module_info.current_module != "")) {
-        console.log(`load source '${store.module_info.current_module}'`)
-        await store.getSourceListing(store.module_info.current_module)
-        selected_module.value = store.module_info.current_module
+    if (store.current_module && (store.current_module.name != "")) {
+        console.log(`load source '${store.current_module.name}'`)
+        await store.getSourceListing(store.current_module.name)
+        selected_module.value = store.current_module.name
     }
     else {
         selected_module.value = ""
     }
 }
 
-
 onMounted(async () => {
     console.log("debugger mounted")
-    if (store.getCurrentSource()) {
-        console.log(`current source: ${store.getCurrentSource()}`)
-        selected_module.value = store.getCurrentSource()
+    if (store.source_info.loaded) {
+        console.log(`current source: ${store.source_info.file}`)
+        selected_module.value = store.source_info.file
     } else {
         loadSource()
     }

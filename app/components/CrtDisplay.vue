@@ -13,14 +13,14 @@
 
 import {Buffer} from 'buffer'
 
-const store = useMainStore()
+const store = useCpuStore()
 const emit = defineEmits(['command'])
 
 const command = ref("")
 const displayContent = ref([])
 
-const isCoco = computed(() => store.display_type === "COCO")
-const memory = computed(() => store.display)
+const isCoco = computed(() => store.display?.type === "COCO")
+const memory = computed(() => store.display?.content)
 
 const cocoCharMap = [
 	'@', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',  // 0x00-0x0f
@@ -46,17 +46,17 @@ watch(memory, (newDisplay, _) => {
     try {
         // console.log("update display...")
         const data = Buffer.from(newDisplay, 'base64')
-        if (store.display_type === "COCO") {
-            for (let i=0; i < store.display_size.y; i++) {
+        if (store.display.type === "COCO") {
+            for (let i=0; i < store.display.size.y; i++) {
                 let line = ""
-                for (let j=0; j < store.display_size.x; j++) {
-                    let x = data[(store.display_size.x * i) + j]
+                for (let j=0; j < store.display.size.x; j++) {
+                    let x = data[(store.display.size.x * i) + j]
                     line += cocoCharMap[x]
                 }
                 disp.push(line)
             }
         }
-        else if (store.display_type === "CRTC") {
+        else if (store.display?.type === "CRTC") {
             const content = data.toString('utf8')
             disp.push(content.substring(0, 80))
             for (let x=80; x < content.length; x += 80) {

@@ -35,7 +35,7 @@
 
 <script setup>
 
-const store = useMainStore()
+const store = useCpuStore()
 
 const props = defineProps({
     index: {
@@ -114,7 +114,9 @@ onMounted(() => {
     }
 })
 
-const pgm_counter = computed(() => store.registers["PC"])
+const pgm_counter = computed(() => {
+    return store.cpu_state ? store.cpu_state.registers["PC"] : 0
+})
 watch(pgm_counter, () => {
     testCurrentLine()
 })

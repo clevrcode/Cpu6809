@@ -18,7 +18,7 @@
 
 <script setup>
 
-const store = useMainStore()
+const store = useCpuStore()
 
 const moduleSelected = ref("")
 const breakpoint = ref("")
@@ -33,20 +33,21 @@ function moduleChanged(event) {
 const breakpoints = computed(() => {
     let brkpts = []
     for (let brk of store.breakpoints) {
-        let obj = { 
-            address: brk.address,
-            strAddress: hexAddress(brk.address),
-            enable: brk.enable
-        }
-        if (useModule.value) {
-            // console.log(findModule(brk.address))
-            let mod = findModule(brk.address)
-            if (mod) {
-                let addr = brk.address - mod.start
-                obj.strAddress =  mod.name + ":" + hexAddress(addr)
+        if (!brk.temporary) {
+            let obj = { 
+                address: brk.address,
+                strAddress: hexAddress(brk.address),
+                enable: brk.enabled
             }
+            if (useModule.value) {
+                let mod = findModule(brk.address)
+                if (mod) {
+                    let addr = brk.address - mod.start
+                    obj.strAddress =  mod.name + ":" + hexAddress(addr)
+                }
+            }
+            brkpts.push(obj)
         }
-        brkpts.push(obj)
     }
     return brkpts
 })
@@ -78,7 +79,7 @@ function dataInput(ev) {
                     console.log(`absolute address is: ${address}`)
                 }
             }
-            store.addBreakpoint({ address, enable })
+            store.addBreakpoint(address, enable)
             breakpoint.value = ""
         } 
     } catch (error) {
@@ -87,7 +88,7 @@ function dataInput(ev) {
 }
 
 function toggleEnabled(address, enable) {
-    store.addBreakpoint({ address, enable })
+    store.addBreakpoint(address, enable)
 }
 
 function deleteBreakpoint(address) {
@@ -98,16 +99,11 @@ function UseModuleChanged() {
     useModule.value = !useModule.value
 }
 
-onMounted(async () => {
-    try {
-        await store.getBreakpoints()
-        await store.getModuleList()
-        const info = store.getModuleInfo()
-        console.log(`module: ${info.current_module}`)
-        moduleSelected.value = info.current_module
-    } catch (error) {
-        console.log(error)
-    }
+onMounted(() => {
+    if (store.current_module) {
+        console.log(`module: ${store.current_module.name}`)
+        moduleSelected.value = store.current_module.name
+    }    
 })
 
 </script>

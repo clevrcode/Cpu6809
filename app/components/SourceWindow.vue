@@ -12,15 +12,16 @@
 
 const emit = defineEmits(['src_changed'])
 
-const store = useMainStore()
-const sourceWnd = useTemplateRef('source-window')
+const store = useCpuStore()
+const sourceWnd = useTemplateRef('source-window') 
 const { _, y } = useScroll(sourceWnd)
 
-const source_content = computed(() => store.getSourceContent())
-const current_module = computed(() => store.module_info.current_module)
-const module_base    = computed(() => store.getSourceBaseAddress())
-const pgm_counter    = computed(() => store.registers["PC"])
-const source_loaded  = computed(() => store.source_loaded)
+const source_content = computed(() => store.source_info.content)
+const source_file    = computed(() => store.source_info.file)
+const current_module = computed(() => store.current_module.name)
+const module_base    = computed(() => store.source_info.base)
+const pgm_counter    = computed(() => store.cpu_state.registers["PC"])
+const source_loaded  = computed(() => store.source_info.loaded)
 const curline        = ref(null)
 let windowHeight = 0
 
@@ -39,13 +40,13 @@ watch(pgm_counter, (pc, oldpc) => {
 watch(source_loaded, (loaded, _) => {
     if (loaded) {
         console.log("new source loaded")
-        console.log(`set scroll pos to pc: ${store.currPC}`)
+        console.log(`set scroll pos to pc: ${store.registers.value["PC"]}`)
         setTimeout(updateScroll, 1000)
     }
 })
 
 function updateScroll() {
-    scrollToLine(store.currPC)
+    scrollToLine(pgm_counter)
 }
 
 function scrollToLine(pc) {
@@ -70,14 +71,12 @@ function scroll_to(val) {
 }
 
 onMounted(() => {
-    console.log(`mounted: y = ${y.value}`)
     const rect = sourceWnd.value.getBoundingClientRect()
     windowHeight = Math.floor(rect.height)
     console.log(`source window height: ${windowHeight}`)
-    if (store.getCurrentSource()) {
-        const src = store.getCurrentSource()
-        if (src && (src == current_module.value)) {
-            scrollToLine(store.currPC)
+    if (source_loaded) {
+        if (source_file == current_module.value) {
+            scrollToLine(pgm_counter)
         } else {
             // Load file of new module
             curline.value = null

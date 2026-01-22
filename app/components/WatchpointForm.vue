@@ -38,7 +38,7 @@
 
 <script setup>
 
-const store = useMainStore()
+const store = useCpuStore()
 
 const tracingInfo = ref(null)
 const tracingEnabled = ref(false)
@@ -48,10 +48,6 @@ const tracingEnd = ref(0)
 const watchEnabled = ref(false)
 const watchStart = ref(0)
 const watchEnd = ref(0)
-
-// const tracing_enabled = computed(() => tracingInfo.value?.enabled)
-// const tracing_start = computed(() => tracingInfo.value?.start)
-// const tracing_end = computed(() => tracingInfo.value?.end)
 
 function checkTracing() {
 }
@@ -64,12 +60,12 @@ function sendTracingRequest() {
     console.log("send tracing request")
 }
 
-onMounted(async () => {
-    tracingInfo.value = await store.getTracingInfo()
-    console.log(tracingInfo.value)
-    tracingEnabled.value = tracingInfo.value.enabled
-    tracingStart.value = formatNumber(tracingInfo.value.start, 16, 4)
-    tracingEnd.value = formatNumber(tracingInfo.value.end, 16, 4)
+onMounted(() => {
+    if (store.tracing_info) {
+        tracingEnabled.value = store.tracing_info.enabled
+        tracingStart.value = formatNumber(store.tracing_info.start, 16, 4)
+        tracingEnd.value = formatNumber(store.tracing_info.end, 16, 4)
+    }
 })
 
 </script>

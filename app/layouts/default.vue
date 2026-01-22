@@ -31,13 +31,15 @@
         <TheHeader></TheHeader>
         <div class="control-panel">
             <ConditionCode />
-            <ControlButtonBar @watch="openWatchpoint" @memory="openMemory" @breakpoint="openBreakpoints" @cpurun="run"/>
+            <ControlButtonBar @watch="openWatchpoint" @memory="openMemory" @breakpoint="openBreakpoints"/>
         </div>
         <div class="page_separator">
         </div>
         <div class="console-panel">
             <div class="console-panel_sidebar">
-                <StatusBar></StatusBar>
+                <ClientOnly>
+                    <StatusBar></StatusBar>
+                </ClientOnly>
                 <Registers @update="openForm"></Registers>
             </div>
             <div class="console-panel_main">
@@ -49,7 +51,7 @@
 
 <script setup>
 
-    const store = useMainStore()
+    const store = useCpuStore()
 
     const showRegForm = ref(false)
     const showBreakpoints = ref(false)
@@ -76,7 +78,7 @@
         console.log("show reg form")
         showRegForm.value = !showRegForm.value
         regFormName.value = name
-        regFormValue.value = store.registers[name]
+        regFormValue.value = store.cpu_state.registers[name]
         regValSize.value = size
     }
 
@@ -98,9 +100,9 @@
         showBreakpoints.value = false
     }
 
-    async function submitRegisterRequest(name, value) {
+    function submitRegisterRequest(name, value) {
         console.log(`submit request ${name}: ${value} ${value.toString(16)}`)
-        await store.setRegister({ name, value })
+        store.setRegister(name, value)
         canCloseRegister()
     }
 
@@ -113,46 +115,17 @@
         console.log("submit breakpoints")
     }
 
-    async function submitCommand(cmd) {
-        try {
-            await store.sendCommand(cmd)
-            runOnce()
-        } catch (err) {
-            console.log(err)
-        }
+    // TODO
+    function submitCommand(cmd) {
+        // try {
+        //     store.sendCommand(cmd)
+        // } catch (err) {
+        //     console.log(err)
+        // }
     }
-
-    let timerId = 0
-
-    async function run() {
-        console.log("run cpu...")
-        await store.run("200")
-        runOnce()
-    }
-
-    async function runOnce()
-    {
-        try {
-            await store.updateDisplay()
-            await store.getRegisters()
-            if (!store.break_active) {
-                timerId = setTimeout(runOnce, 100)
-            } else {
-                await store.getModuleList()
-                timerId = 0
-           }
-        } catch (error) {
-            console.error("An error occurred during 'run':", error);
-            timerId = 0
-        }
-    }    
-    
+   
     function update() {
-        console.log("update")
-        store.getRegisters()
-        store.updateDisplay()
-        store.getBreakpoints()
-        // store.getModuleList()
+        console.log("update")       
     }
 
     onMounted(() => {

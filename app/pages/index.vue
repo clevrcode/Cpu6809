@@ -20,7 +20,7 @@
 
 <script setup>
 
-    const store = useMainStore()
+    const store = useCpuStore()
     const emit = defineEmits(['command'])
     const diskPopup = useTemplateRef('disk-popup')
 
@@ -31,9 +31,9 @@
 
     const current_drive = ref(null)
 
-    async function changeDisk(id) {
+    function changeDisk(id) {
         console.log(`change disk: ${id}`)
-        await store.getAvailableDisks()
+        store.getAvailableDisks()
         current_drive.value = id
         diskPopup.value.togglePopover()
     }
@@ -63,11 +63,6 @@
         current_drive.value = null
         diskPopup.value.hidePopover()
     }
-
-    onMounted(() => {
-        store.getDisksInfo()
-        console.log(store.floppy_disks)
-    })
 
 </script>
 

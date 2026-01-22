@@ -48,7 +48,7 @@
 
 <script setup>
 
-const store = useMainStore()
+const store = useCpuStore()
 const diskSelected = ref("")
 const diskToCreate = ref("")
 
@@ -87,6 +87,8 @@ function cancel() {
     console.log("cancel")
     emit('cancel')
 }
+
+
 
 </script>
 

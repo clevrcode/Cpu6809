@@ -14,14 +14,15 @@
 <script setup>
 
 import {Buffer} from 'buffer'
-const store = useMainStore()
-const emit = defineEmits(['command'])
+const store = useCpuStore()
+// const emit = defineEmits(['command'])
 
 const command = ref("")
 const displayContent = ref([])
 
-const isCoco = computed(() => store.display_type === "COCO")
-const memory = computed(() => store.display)
+const isCoco  = computed(() => store.display.type === "COCO")
+const updated = computed(() => store.display.updated)
+
 const crt = useTemplateRef("crt")
 
 const cocoCharMap = [
@@ -70,53 +71,85 @@ function draw() {
 
 onMounted(() => {
     try {
-        renderContent(store.display)
-        draw()
+        if (store.display) {
+            renderContent(store.display.content)
+            draw()
+        }
     } catch (error) {
         console.log(error)
     }
 })
 
 function dataInput(ev) {
-    let b64cmd = null
+    let keyval = 255;
     if (ev.key === "Enter") {
-        b64cmd = Buffer.from(command.value + "\r").toString('base64')
-    } else if (((ev.key == "C")||(ev.key == "c")) && ev.ctrlKey) {
-        b64cmd = Buffer.from([0x03]).toString('base64')
-    } else if (ev.key == "Escape") {
-        b64cmd = Buffer.from([0x1b]).toString('base64')
-    } else if (ev.key == "ArrowUp") {
-        b64cmd = Buffer.from([0x0C]).toString('base64')
-    } else if (ev.key == "ArrowDown") {
-        b64cmd = Buffer.from([0x0A]).toString('base64')
-    } else if (ev.key == "ArrowLeft") {
-        b64cmd = Buffer.from([0x08]).toString('base64')
-    } else if (ev.key == "ArrowRight") {
-        b64cmd = Buffer.from([0x09]).toString('base64')
-    }
-    if (b64cmd) {
-        console.log(`send command: ${b64cmd}`)
-        emit('command', b64cmd)
+        keyval = 0x0d
         command.value = ""
+    } else if (ev.key == "Backspace") {
+        keyval = 0x08
+        if (command.value.length > 0) {
+            command.value = command.value.substring(0, command.value.length-1)
+        }
+    } else if (((ev.key == "C")||(ev.key == "c")) && ev.ctrlKey) {
+        keyval = 0x03
+    } else if (ev.key == "Escape") {
+        keyval = 0x1b
+    } else if (ev.key == "ArrowUp") {
+        keyval = 0x0c
+    } else if (ev.key == "ArrowDown") {
+        keyval = 0x0a
+    } else if (ev.key == "ArrowLeft") {
+        keyval = 0x08
+    } else if (ev.key == "ArrowRight") {
+        keyval = 0x09
+    } else if (!ev.ctrlKey && !ev.altKey) {
+        keyval = ev.key.charCodeAt(0)
+    }
+    if (keyval != 255) {
+        store.sendCommand('keypress', { key: keyval })
     }
 }
 
-function renderContent(content) {
+// function dataInput(ev) {
+//     let b64cmd = null
+//     if (ev.key === "Enter") {
+//         b64cmd = Buffer.from(command.value + "\r").toString('base64')
+//     } else if (((ev.key == "C")||(ev.key == "c")) && ev.ctrlKey) {
+//         b64cmd = Buffer.from([0x03]).toString('base64')
+//     } else if (ev.key == "Escape") {
+//         b64cmd = Buffer.from([0x1b]).toString('base64')
+//     } else if (ev.key == "ArrowUp") {
+//         b64cmd = Buffer.from([0x0C]).toString('base64')
+//     } else if (ev.key == "ArrowDown") {
+//         b64cmd = Buffer.from([0x0A]).toString('base64')
+//     } else if (ev.key == "ArrowLeft") {
+//         b64cmd = Buffer.from([0x08]).toString('base64')
+//     } else if (ev.key == "ArrowRight") {
+//         b64cmd = Buffer.from([0x09]).toString('base64')
+//     }
+//     if (b64cmd) {
+//         console.log(`send command: ${b64cmd}`)
+//         emit('command', b64cmd)
+//         command.value = ""
+//     }
+// }
+
+function renderContent(disp_mem) {
     let disp = []
     try {
-        const data = Buffer.from(content, 'base64')
-        if (store.display_type === "COCO") {
-            for (let i=0; i < store.display_size.y; i++) {
+        const data = Buffer.from(disp_mem, 'base64')
+        if (store.display.type === "COCO") {
+            for (let i=0; i < store.display.size.y; i++) {
                 let line = ""
-                for (let j=0; j < store.display_size.x; j++) {
-                    let x = data[(store.display_size.x * i) + j]
+                for (let j=0; j < store.display.size.x; j++) {
+                    let x = data[(store.display.size.x * i) + j]
                     line += cocoCharMap[x]
                 }
                 disp.push(line)
             }
         }
-        else if (store.display_type === "CRTC") {
-            const content = data.toString('utf8')
+        else if (store.display.type === "CRTC") {
+            const content = data.toString('utf8').replace('\0', ' ')
             disp.push(content.substring(0, 80))
             for (let x=80; x < content.length; x += 80) {
                 disp.push(content.substring(x, x+80))
@@ -129,8 +162,8 @@ function renderContent(content) {
     displayContent.value = disp
 }
 
-watch(memory, (newDisplay, _) => {
-    renderContent(newDisplay)
+watch(updated, (newDisplay, _) => {
+    renderContent(store.display.content)
     draw()
 })
 

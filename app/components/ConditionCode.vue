@@ -17,8 +17,13 @@
 
 <script setup>
 
-const store = useMainStore()
-const cc = computed(() => store.registers["CC"])
+const store = useCpuStore()
+const cc = computed(() => {
+    if (store.cpu_state) {
+        return store.cpu_state.registers["CC"]
+    }
+    return 0
+})
 
 const entireOn   = computed(() => ((cc.value & 0x80) != 0))
 const halfOn     = computed(() => ((cc.value & 0x20) != 0))
@@ -52,7 +57,7 @@ const irqOn      = computed(() => ((cc.value & 0x10) != 0))
 }
 
 .cc-info-on {
-    background-color: #2A2;
+    background-color: #2C2;
     color: white;
 }
 
@@ -62,7 +67,7 @@ const irqOn      = computed(() => ((cc.value & 0x10) != 0))
 }
 
 .cc-irq-on {
-    background-color: #A22;
+    background-color: #C22;
     color: white;
 }
 

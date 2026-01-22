@@ -9,12 +9,12 @@
 
 <script setup>
 
-const store = useMainStore()
+const store = useCpuStore()
 
-const haltOn = computed(() => store.halted)
-const waitOn = computed(() => store.wait)
-const breakOn = computed(() => store.break_active)
-const mapType = computed(() => store.map_type)
+const haltOn = computed(() => store.cpu_state?.halted)
+const waitOn = computed(() => store.cpu_state?.wait)
+const breakOn = computed(() => store.cpu_state?.break)
+const mapType = computed(() => store.cpu_state?.map_type)
 
 </script>
 
@@ -39,7 +39,7 @@ const mapType = computed(() => store.map_type)
 }
 
 .sts-info-on {
-    background-color: #2A2;
+    background-color: #2C2;
     color: white;
 }
 
@@ -49,7 +49,7 @@ const mapType = computed(() => store.map_type)
 }
 
 .sts-alarm-on {
-    background-color: #A22;
+    background-color: #C22;
     color: white;
 }
 

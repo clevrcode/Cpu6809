@@ -13,7 +13,7 @@
 <script setup>
 
 const emit = defineEmits(['changed'])
-const store = useMainStore()
+const store = useCpuStore()
 
 const props = defineProps({
     module: {
@@ -29,11 +29,6 @@ function moduleChanged() {
     console.log(`module changed to : ${moduleSelected.value}`)
     emit('changed', moduleSelected.value)
 }
-
-// onMounted(() => {
-//     console.log(`prop: ${props.module}`)
-//     moduleSelected.value = props.module
-// })
 
 </script>
 

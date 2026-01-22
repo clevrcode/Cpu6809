@@ -21,16 +21,16 @@ const props = defineProps({
 
 let prevValue = 0
 const modified = ref(false)
-const store = useMainStore()
+const store = useCpuStore()
 
 const hex_value = computed(() => {
-    try {
-        modified.value = store.registers[props.name] != prevValue
-        prevValue = store.registers[props.name]
-        return formatNumber(store.registers[props.name], 16, props.large ? 4 : 2)
-    } catch (err) {
-        console.log(err)
+    if (store.cpu_state) {
+        modified.value = store.cpu_state.registers[props.name] != prevValue
+        prevValue = store.cpu_state.registers[props.name]
+        return formatNumber(store.cpu_state.registers[props.name], 16, props.large ? 4 : 2)
     }
+    modified.value = false
+    return 0
 })
 
 </script>
