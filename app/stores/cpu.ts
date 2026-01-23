@@ -68,6 +68,7 @@ interface Display {
 
 interface Source {
   file: string,
+  module: string,
   content: string[],
   base_address: number,
   base: number,
@@ -102,13 +103,15 @@ export const useCpuStore = defineStore('cpu', () => {
     const available_disks = ref<DiskFile[]>([])
     const selected_memory = ref<number | null>(null)
     const memory          = ref<Memory>({ updated: false, address: 0, data: []})
-    const source_info     = ref<Source>({ file: "", content: [], base_address: 0, base: 0, loaded: false})
+    const source_info     = ref<Source>({ file: "", module: "", content: [], base_address: 0, base: 0, loaded: false})
     const breakpoints     = ref<Breakpoint[]>([])
     const tracing_info    = ref<Tracing | null>(null)
+    const OS9_loaded      = ref<boolean>(false)
 
-    const socket = ref<WebSocket | null>(null);
-    const error = ref<Event | null>(null);
+    const socket      = ref<WebSocket | null>(null);
+    const error       = ref<Event | null>(null);
     const isConnected = ref<boolean>(false);
+
     let reconnectAttempt     = 0;
     let maxReconnectAttempts = 10;
     let reconnectInterval    = 1000; // 1 second
@@ -125,7 +128,7 @@ export const useCpuStore = defineStore('cpu', () => {
         };
 
         socket.value.onmessage = (event) => {
-          console.log('Message received:', event.data);
+          console.log('Message received:');
           ProcessMessage(event.data)
         };
 
@@ -144,7 +147,7 @@ export const useCpuStore = defineStore('cpu', () => {
     const disconnect = () => {
       if (socket.value) {
         socket.value.close();
-        socket.value = null;
+        socket.value = null; 
       }
     };
 
@@ -152,7 +155,7 @@ export const useCpuStore = defineStore('cpu', () => {
       if (reconnectAttempt < maxReconnectAttempts) {
         setTimeout(() => {
           console.log(`Attempting to reconnect (attempt ${reconnectAttempt + 1})`);
-          connect;
+          connect();
           reconnectAttempt++;
           reconnectInterval *= 2; // Exponential backoff
         }, reconnectInterval);
@@ -162,11 +165,11 @@ export const useCpuStore = defineStore('cpu', () => {
     }
 
     const setCurrentModule = () => {
-      if (cpu_state.value) {
+      if (cpu_state.value && cpu_state.value.break) {
         const pc = cpu_state.value.registers.PC
         const module = modules.value.find((mod) => pc >= mod.start && pc < mod.end)
         if (module) {
-            console.log(`current_module: ${module}`)
+            console.log(`current_module: ${module.name}`)
             current_module.value = module
         } else {
             console.log("current_module: None")
@@ -177,19 +180,20 @@ export const useCpuStore = defineStore('cpu', () => {
 
     const setCpuState = (reg: CpuState) => {
         cpu_state.value = reg
-        if (reg.map_type === "RAM") {
+        OS9_loaded.value = reg.map_type === "RAM"
+        if (OS9_loaded) {
             setCurrentModule()
         }
     };
 
     const sendCommand = (cmd: string, argv: object) => {
-      if (socket.value && isConnected.value) {
-        const msg = { command: cmd, argv: argv }
-        console.log(`msg: ${JSON.stringify(msg)}`)
-        socket.value.send(JSON.stringify(msg));
-      } else {
-        console.error('WebSocket not connected');
-      }
+        if (socket.value && isConnected.value) {
+            const msg = { command: cmd, argv: argv }
+            // console.log(`msg: ${JSON.stringify(msg)}`)
+            socket.value.send(JSON.stringify(msg));
+        } else {
+            console.error('WebSocket not connected');
+        }
     }
 
     const ProcessMessage = (data: any) => {
@@ -199,7 +203,8 @@ export const useCpuStore = defineStore('cpu', () => {
         if (key === "cpu_state") {
           setCpuState(msg["cpu_state"])
         }
-        else if (key === "display") {
+        else if (key === "display") 
+        {
           const obj = msg["display"]
           display.value = {
             updated: !display.value.updated,
@@ -213,36 +218,47 @@ export const useCpuStore = defineStore('cpu', () => {
             }
           }
         }
-        else if (key === "disks") {
+        else if (key === "disks") 
+        {
           floppy_disks.value = msg["disks"]
         }
-        else if (key == "breakpoints") {
+        else if (key == "breakpoints") 
+        {
+          console.log(JSON.stringify(msg["breakpoints"]))
           breakpoints.value = msg["breakpoints"]
         }
-        // else if (key == "source") {
-        //   const source = msg["source"]["file"]
-        //   const module = modules.value.find((mod) => mod.name === source)
-        //   if (module) {
-        //       source_info.value.file = source
-        //       source_info.value.content = msg["source"]["content"]
-        //       source_info.value.base = module.start
-        //       source_info.value.loaded = true
-        //   } else {
-        //       source_info.value = { file: "", content: [], base_address: 0, base: 0, loaded: false }
-        //   }
-        // }
-        else if (key == "modules") {
+        else if (key == "source") 
+        {
+          const module_name = msg["source"]["module"]
+          const module = modules.value.find((mod) => mod.name === module_name)
+          if (module) {
+              source_info.value.file = msg["source"]["file"]
+              source_info.value.module = module_name
+              source_info.value.content = msg["source"]["content"]
+              source_info.value.base_address = module.start
+              source_info.value.base = module.start
+              source_info.value.loaded = true
+          } else {
+              console.log("Unknown source")
+              source_info.value = { file: "", module: "", content: [], base_address: 0, base: 0, loaded: false }
+          }
+        }
+        else if (key == "modules") 
+        {
           modules.value = msg["modules"]
         }
-        else if (key == "memory") {
+        else if (key == "memory") 
+        {
           memory.value.address = msg["memory"]["address"]
           memory.value.data = msg["memory"]["data"]
           memory.value.updated = !memory.value.updated
         }
-        else if (key == "available_disks") {
+        else if (key == "available_disks") 
+        {
           available_disks.value = msg["available_disks"]
         }
-        else {
+        else 
+        {
           console.log(`Unknown message [${key}]`)
         }
       }
@@ -293,7 +309,7 @@ export const useCpuStore = defineStore('cpu', () => {
       source_info.value.loaded = false
       // send request for module directory prior to get the listing
       sendCommand('modules', { operation: 'get' })
-      sendCommand('source', { file: filename })
+      sendCommand('source', { file: filename, module: module_name })
     }
 
     // CPU Control
@@ -341,11 +357,13 @@ export const useCpuStore = defineStore('cpu', () => {
     }
 
     const addBreakpoint = (address: number, enable: boolean) => {
-      sendCommand('breakpoint', { operation: "add", brkpt: { address, enable}})
+      sendCommand('breakpoints', { operation: "add", brkpt: { address, enable}})
     }
-    const removeBreakpoint = (address: number) => {
-      sendCommand('breakpoint', { operation: "delete", brkpt: { address }})
+
+    const deleteBreakpoint = (address: number) => {
+      sendCommand('breakpoints', { operation: "delete", brkpt: { address }})
     }
+
     const isBreakpoint = (address: number) => {
         return breakpoints.value.find((b) => b.address === address) != undefined
     }
@@ -384,7 +402,7 @@ export const useCpuStore = defineStore('cpu', () => {
         getModules,
         getSourceListing,
         addBreakpoint,
-        removeBreakpoint,
+        deleteBreakpoint,
         isBreakpoint
     }
 })

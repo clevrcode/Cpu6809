@@ -52,10 +52,10 @@ function getFile() {
     }
 }
 
-async function loadSource() {
+function loadSource() {
     if (store.current_module && (store.current_module.name != "")) {
         console.log(`load source '${store.current_module.name}'`)
-        await store.getSourceListing(store.current_module.name)
+        store.getSourceListing(store.current_module.name)
         selected_module.value = store.current_module.name
     }
     else {
@@ -66,8 +66,8 @@ async function loadSource() {
 onMounted(async () => {
     console.log("debugger mounted")
     if (store.source_info.loaded) {
-        console.log(`current source: ${store.source_info.file}`)
-        selected_module.value = store.source_info.file
+        console.log(`current source: ${store.source_info.module}`)
+        selected_module.value = store.source_info.module
     } else {
         loadSource()
     }

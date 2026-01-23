@@ -18,13 +18,14 @@
 <script setup>
 
 const store = useCpuStore()
+
+const clientMounted = ref(false)
 const cc = computed(() => {
-    if (store.cpu_state) {
+    if (clientMounted.value && store.cpu_state) {
         return store.cpu_state.registers["CC"]
     }
     return 0
 })
-
 const entireOn   = computed(() => ((cc.value & 0x80) != 0))
 const halfOn     = computed(() => ((cc.value & 0x20) != 0))
 const negativeOn = computed(() => ((cc.value & 0x08) != 0))
@@ -33,6 +34,8 @@ const overflowOn = computed(() => ((cc.value & 0x02) != 0))
 const carryOn    = computed(() => ((cc.value & 0x01) != 0))
 const firqOn     = computed(() => ((cc.value & 0x40) != 0))
 const irqOn      = computed(() => ((cc.value & 0x10) != 0))
+
+onMounted(() => clientMounted.value = true)
 
 </script>
 

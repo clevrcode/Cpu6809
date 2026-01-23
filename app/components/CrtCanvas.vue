@@ -1,13 +1,13 @@
 <template>
-    <div>
-        <div class="display" @keydown="keyPressed">
+    <div >
+        <div class="display">
             <canvas ref="crt" id="crtscreen" width="800" height="500">
                 Unsupported browser
             </canvas>
         </div>
-        <div class="crt-input">
+        <!-- <div class="crt-input">
             <input type="text" placeholder="command" spellcheck="false" @keydown="dataInput" v-model="command">
-        </div>        
+        </div>         -->
     </div>
 </template>
 
@@ -15,7 +15,6 @@
 
 import {Buffer} from 'buffer'
 const store = useCpuStore()
-// const emit = defineEmits(['command'])
 
 const command = ref("")
 const displayContent = ref([])
@@ -35,10 +34,6 @@ const cocoCharMap = [
 	' ', '!', '"', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/', // 0x60-0x6f
 	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ';', '<', '=', '>', '?'   // 0x70-0x7f
 ];
-
-function keyPressed(ev) {
-    console.log(`key pressed [${ev.key}]`)
-}
 
 function fillBackgroundColor(canvas, context, bgcolor) {
     context.fillStyle = bgcolor;
@@ -66,25 +61,70 @@ function draw() {
             context.fillText(displayContent.value[i], 15, pos_y)
             pos_y += params.line_spacing
         }
+    }   
+}
+
+let blinkOn = false
+
+function drawCursor() {
+    if (store.display.cursor.on) {
+        const context = crt.value.getContext("2d")
+        const params = getDisplayParams()
+        if (blinkOn) {
+            context.fillStyle = params.fg
+        } else {
+            context.fillStyle = params.bg
+        }
+        const charWidth = 10
+        let px = (store.display.cursor.pos.x * charWidth) + 15
+        let py = (store.display.cursor.pos.y * params.line_spacing) + 5
+        context.fillRect(px, py, charWidth, params.line_spacing-2);
+        blinkOn = !blinkOn
     }
+    setTimeout(drawCursor, 500)
 }
 
 onMounted(() => {
     try {
+        window.addEventListener('keydown', dataInput);
+        crt.value.focus()
         if (store.display) {
             renderContent(store.display.content)
             draw()
         }
+        setTimeout(drawCursor, 1000)
     } catch (error) {
         console.log(error)
     }
 })
 
+onBeforeUnmount(() => {
+    window.removeEventListener('keydown', dataInput);
+})
+
 function dataInput(ev) {
     let keyval = 255;
+    if ((ev.key === "Shift") || 
+        (ev.key === "CapsLock") || 
+        (ev.key === "Control") ||
+        (ev.key === "Dead") ||
+        (ev.key === "NumLock") ||
+        (ev.key === "PageUp") ||
+        (ev.key === "PageDown") ||
+        (ev.key === "End") ||
+        (ev.key === "Home") ||
+        (ev.key === "Delete") ||
+        (ev.key === "Insert") ||
+        (ev.key === "Alt")) {
+        return
+    }
+    console.log(`key: [${ev.key}]`)
+
     if (ev.key === "Enter") {
         keyval = 0x0d
         command.value = ""
+    } else if (ev.key === "Tab") {
+        keyval = 0x09
     } else if (ev.key == "Backspace") {
         keyval = 0x08
         if (command.value.length > 0) {
@@ -110,30 +150,6 @@ function dataInput(ev) {
     }
 }
 
-// function dataInput(ev) {
-//     let b64cmd = null
-//     if (ev.key === "Enter") {
-//         b64cmd = Buffer.from(command.value + "\r").toString('base64')
-//     } else if (((ev.key == "C")||(ev.key == "c")) && ev.ctrlKey) {
-//         b64cmd = Buffer.from([0x03]).toString('base64')
-//     } else if (ev.key == "Escape") {
-//         b64cmd = Buffer.from([0x1b]).toString('base64')
-//     } else if (ev.key == "ArrowUp") {
-//         b64cmd = Buffer.from([0x0C]).toString('base64')
-//     } else if (ev.key == "ArrowDown") {
-//         b64cmd = Buffer.from([0x0A]).toString('base64')
-//     } else if (ev.key == "ArrowLeft") {
-//         b64cmd = Buffer.from([0x08]).toString('base64')
-//     } else if (ev.key == "ArrowRight") {
-//         b64cmd = Buffer.from([0x09]).toString('base64')
-//     }
-//     if (b64cmd) {
-//         console.log(`send command: ${b64cmd}`)
-//         emit('command', b64cmd)
-//         command.value = ""
-//     }
-// }
-
 function renderContent(disp_mem) {
     let disp = []
     try {
@@ -149,7 +165,7 @@ function renderContent(disp_mem) {
             }
         }
         else if (store.display.type === "CRTC") {
-            const content = data.toString('utf8').replace('\0', ' ')
+            const content = data.toString('utf8')
             disp.push(content.substring(0, 80))
             for (let x=80; x < content.length; x += 80) {
                 disp.push(content.substring(x, x+80))
@@ -173,6 +189,9 @@ watch(updated, (newDisplay, _) => {
 
 canvas {
     border: 5px solid #777;
+}
+canvas:focus {
+    border: 5px solid white;
 }
 
 .crt-input input {

@@ -1,7 +1,7 @@
 <template>
     <div class="reg-window" >
         <div class="reg-name">{{ name }}</div>
-        <div class="reg-value" :class="{ 'wide-box': large, modified }">{{ hex_value }}</div>
+        <div class="reg-value" :class="{ modified }">{{ hex_value }}</div>
     </div>
 </template>
 
@@ -22,16 +22,19 @@ const props = defineProps({
 let prevValue = 0
 const modified = ref(false)
 const store = useCpuStore()
+const clientMounted = ref(false)
 
 const hex_value = computed(() => {
-    if (store.cpu_state) {
+    if (clientMounted.value && store.cpu_state) {
         modified.value = store.cpu_state.registers[props.name] != prevValue
         prevValue = store.cpu_state.registers[props.name]
         return formatNumber(store.cpu_state.registers[props.name], 16, props.large ? 4 : 2)
     }
     modified.value = false
-    return 0
+    return formatNumber(0, 16, props.large ? 4 : 2)
 })
+
+onMounted(() => clientMounted.value = true)
 
 </script>
 
@@ -60,9 +63,6 @@ const hex_value = computed(() => {
     padding: 10px;
     text-align: center;
 }
-
-/* .wide-box {
-} */
 
 .modified {
     color: yellow;

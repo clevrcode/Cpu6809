@@ -2,7 +2,7 @@
     <div class="file-window">
         <div class="file-content" ref="source-window">
             <div v-for="(line, index) in source_content">
-                <debug-line :index :line :curline></debug-line>
+                <source-line :index :line :curline></source-line>
             </div>
         </div>
     </div>
@@ -17,16 +17,16 @@ const sourceWnd = useTemplateRef('source-window')
 const { _, y } = useScroll(sourceWnd)
 
 const source_content = computed(() => store.source_info.content)
-const source_file    = computed(() => store.source_info.file)
-const current_module = computed(() => store.current_module.name)
+const source_module  = computed(() => store.source_info.module)
 const module_base    = computed(() => store.source_info.base)
-const pgm_counter    = computed(() => store.cpu_state.registers["PC"])
 const source_loaded  = computed(() => store.source_info.loaded)
+const current_module = computed(() => store.current_module ? store.current_module.name : "")
+const pgm_counter    = computed(() => store.cpu_state.registers["PC"])
 const curline        = ref(null)
 let windowHeight = 0
 
 watch(pgm_counter, (pc, oldpc) => {
-    const src = store.getCurrentSource()
+    const src = store.source_info.module
     // console.log(`pc changed to ${pc} ${src} : ${current_module.value} ${module_base.value}`)
     if (src && (src == current_module.value)) {
         scrollToLine(pc)
@@ -40,14 +40,12 @@ watch(pgm_counter, (pc, oldpc) => {
 watch(source_loaded, (loaded, _) => {
     if (loaded) {
         console.log("new source loaded")
-        console.log(`set scroll pos to pc: ${store.registers.value["PC"]}`)
-        setTimeout(updateScroll, 1000)
+        console.log(`set scroll pos to pc: ${store.cpu_state.registers["PC"]}`)
+        setTimeout(() => scrollToLine(pgm_counter), 1000)
     }
+    // else {
+    // }
 })
-
-function updateScroll() {
-    scrollToLine(pgm_counter)
-}
 
 function scrollToLine(pc) {
     const relpc = pc - module_base.value
@@ -75,7 +73,7 @@ onMounted(() => {
     windowHeight = Math.floor(rect.height)
     console.log(`source window height: ${windowHeight}`)
     if (source_loaded) {
-        if (source_file == current_module.value) {
+        if (source_module == current_module.value) {
             scrollToLine(pgm_counter)
         } else {
             // Load file of new module
@@ -89,7 +87,6 @@ onMounted(() => {
 <style scoped>
 
 .file-window {
-    /* padding: 0 2%; */
     width: 95%;
 }
 

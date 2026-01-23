@@ -2,7 +2,7 @@
     <div class="sts-box">
         <div class="sts-window sts-alarm-off" :class="{ 'sts-alarm-on': haltOn }">HALTED</div>
         <div class="sts-window sts-alarm-off" :class="{ 'sts-alarm-on': breakOn }">BREAK</div>
-        <div class="sts-window sts-info-off" :class="{ 'sts-info-on': waitOn }">WAIT</div>
+        <div class="sts-window sts-info-off"  :class="{ 'sts-info-on':  waitOn }">WAIT</div>
         <div class="sts-window sts-info-on">{{ mapType }}</div>
     </div>
 </template>
@@ -10,11 +10,27 @@
 <script setup>
 
 const store = useCpuStore()
+const clientMounted = ref(false)
 
-const haltOn = computed(() => store.cpu_state?.halted)
-const waitOn = computed(() => store.cpu_state?.wait)
-const breakOn = computed(() => store.cpu_state?.break)
-const mapType = computed(() => store.cpu_state?.map_type)
+// const cpu_state = computed(() => {
+//     if (clientMounted.value && store.cpu_state) {
+//         return store.cpu_state
+//     }
+//     return { halted: false, wait: false, break: false, map_type: "ROM" }
+// })
+
+const haltOn  = computed(() => clientMounted.value ? store.cpu_state.halted : false)
+const waitOn  = computed(() => clientMounted.value ? store.cpu_state.wait   : false)
+const breakOn = computed(() => clientMounted.value ? store.cpu_state.break  : false)
+const mapType = computed(() => clientMounted.value ? store.cpu_state.map_type : "ROM")
+
+watch(breakOn, (curr, _) => {
+    if (curr) {
+        store.getModules()
+    }
+})
+
+onMounted(() => clientMounted.value = true)
 
 </script>
 

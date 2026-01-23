@@ -1,4 +1,5 @@
 <template>
+    <!-- === Popover ================== -->
     <div ref="disk-popup" popover class="disk-popup">
         <DiskSelector class="disk-form" 
             @selected="selectDisk" 
@@ -6,11 +7,12 @@
             @cancel="cancelChange" 
             @remove="removeDisk"/>
     </div>
+    <!-- ============================== -->
     <div class="main-page">
          <div class="crt-display">
-             <CrtCanvas @command="sendCommand"></CrtCanvas>
+             <CrtCanvas></CrtCanvas>
          </div>
-        <div class="floppy-drives">
+        <div class="floppy-drives" v-if="clientMounted">
             <div v-for="disk of store.floppy_disks">
                 <FloppyDrive :disk_id="disk.id" :disk_file="disk.name" @change_disk="changeDisk"></FloppyDrive>
             </div>
@@ -21,15 +23,12 @@
 <script setup>
 
     const store = useCpuStore()
-    const emit = defineEmits(['command'])
     const diskPopup = useTemplateRef('disk-popup')
 
-    async function sendCommand(cmd) {
-        console.log('send command...')
-        emit('command', cmd)
-    }
-
+    const clientMounted = ref(false)
     const current_drive = ref(null)
+
+    onMounted(() => clientMounted.value = true)
 
     function changeDisk(id) {
         console.log(`change disk: ${id}`)

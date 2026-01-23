@@ -37,13 +37,11 @@
         </div>
         <div class="console-panel">
             <div class="console-panel_sidebar">
-                <ClientOnly>
-                    <StatusBar></StatusBar>
-                </ClientOnly>
+                <StatusBar></StatusBar>
                 <Registers @update="openForm"></Registers>
             </div>
             <div class="console-panel_main">
-                <NuxtPage @command="submitCommand"></NuxtPage>
+                <NuxtPage></NuxtPage>
             </div>
         </div>
     </div>
@@ -75,7 +73,6 @@
     }
 
     function openForm(name, size) {
-        console.log("show reg form")
         showRegForm.value = !showRegForm.value
         regFormName.value = name
         regFormValue.value = store.cpu_state.registers[name]
@@ -114,23 +111,6 @@
     function submitBreakpointRequest() {
         console.log("submit breakpoints")
     }
-
-    // TODO
-    function submitCommand(cmd) {
-        // try {
-        //     store.sendCommand(cmd)
-        // } catch (err) {
-        //     console.log(err)
-        // }
-    }
-   
-    function update() {
-        console.log("update")       
-    }
-
-    onMounted(() => {
-        update()
-    })
 
 </script>
 

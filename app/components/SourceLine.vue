@@ -62,9 +62,6 @@ const addr = computed(() => {
     return ""
 })
 
-const code = computed(() => props.line.code)
-const linenb = computed(() => formatNumber(props.line.line, 10, 5))
-// const filename = computed(() => props.line.file + ":" + props.line.line)
 
 const filename = computed(() => {
     if (address.value && (props.line.code.length > 0)) {
@@ -72,21 +69,19 @@ const filename = computed(() => {
     }
     return `${linenb.value}:(----)`
 })
-const label = computed(() => props.line.opcode.label)
-const opcode = computed(() => props.line.opcode.opcode)
-const operand = computed(() => props.line.opcode.operand)
+const code     = computed(() => props.line.code)
+const linenb   = computed(() => formatNumber(props.line.line, 10, 5))
+const label    = computed(() => props.line.opcode.label)
+const opcode   = computed(() => props.line.opcode.opcode)
+const operand  = computed(() => props.line.opcode.operand)
 const comments = computed(() => props.line.opcode.comment)
-const brkpt_active = ref(false)
 const currline = ref(false)
-const fanfold = computed(() => (props.index % 6) < 3)
-const canset = computed(() => (props.line.address != null) && (props.line.code != ""))
+const fanfold  = computed(() => (props.index % 6) < 3)
+const canset   = computed(() => (props.line.address != null) && (props.line.code != ""))
+const brkpt_active = ref(false)
 
 const current_line = computed(() => {
-    if ((props.curline != null) && (props.curline == props.line.line)) {
-        // console.log(`calc current_line ${props.curline}`)
-        return true
-    }
-    return false
+    return ((props.curline != null) && (props.curline == props.line.line))
 })
 
 function testBreakpoint() {
@@ -98,7 +93,7 @@ function testBreakpoint() {
 
 function testCurrentLine() {
     if (address.value) {
-        currline.value = store.isCurrentLine(address.value)
+        currline.value = address.value == store.cpu_state.registers["PC"]
         if (currline.value) {
             console.log(`pc: ${pgm_counter.value}, addr: ${address.value}`)
         }
@@ -106,9 +101,8 @@ function testCurrentLine() {
 }
 
 onMounted(() => {
-    const base_address = store.getSourceBaseAddress()
     if (props.line.address != null) {
-        address.value = props.line.address + base_address
+        address.value = props.line.address + store.source_info.base_address
         testBreakpoint()
         testCurrentLine()
     }
@@ -135,12 +129,7 @@ function toggleBreakpoint() {
     if (brkpt_active.value) {
         store.deleteBreakpoint(address.value)
     } else {
-        const payload = {
-            address: address.value,
-            enable: true
-        }
-        console.log(`toggle breakpoint ${payload.address} ${payload.enable}`)
-        store.addBreakpoint(payload)
+        store.addBreakpoint(address.value, true)
     }
 }
 
