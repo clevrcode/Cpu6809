@@ -48,26 +48,29 @@ function getDisplayParams() {
 }
 
 function draw() {
-    const context = crt.value.getContext("2d")
-    const params = getDisplayParams()
-    fillBackgroundColor(crt.value, context, params.bg)
-    context.font = params.font
-    context.textAlign = "left"
-    context.fillStyle = params.fg
-    const nb_lines = params.height
-    let pos_y = params.line_spacing
-    for (let i=0; i < nb_lines; i++) {
-        if (i < displayContent.value.length) {
-            context.fillText(displayContent.value[i], 15, pos_y)
-            pos_y += params.line_spacing
+    if (crt.value) {
+        const context = crt.value.getContext("2d")
+        const params = getDisplayParams()
+        fillBackgroundColor(crt.value, context, params.bg)
+        context.font = params.font
+        context.textAlign = "left"
+        context.fillStyle = params.fg
+        const nb_lines = params.height
+        let pos_y = params.line_spacing
+        for (let i=0; i < nb_lines; i++) {
+            if (i < displayContent.value.length) {
+                context.fillText(displayContent.value[i], 15, pos_y)
+                pos_y += params.line_spacing
+            }
         }
-    }   
+    }
 }
 
 let blinkOn = false
+let timerId = 0
 
 function drawCursor() {
-    if (store.display.cursor.on) {
+    if (crt.value && store.display.cursor.on) {
         const context = crt.value.getContext("2d")
         const params = getDisplayParams()
         if (blinkOn) {
@@ -81,7 +84,7 @@ function drawCursor() {
         context.fillRect(px, py, charWidth, params.line_spacing-2);
         blinkOn = !blinkOn
     }
-    setTimeout(drawCursor, 500)
+    timerId = setTimeout(drawCursor, 500)
 }
 
 onMounted(() => {
@@ -92,13 +95,14 @@ onMounted(() => {
             renderContent(store.display.content)
             draw()
         }
-        setTimeout(drawCursor, 1000)
+        timerId = setTimeout(drawCursor, 1000)
     } catch (error) {
         console.log(error)
     }
 })
 
 onBeforeUnmount(() => {
+    clearTimeout(timerId)
     window.removeEventListener('keydown', dataInput);
 })
 

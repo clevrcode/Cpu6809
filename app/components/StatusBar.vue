@@ -24,12 +24,6 @@ const waitOn  = computed(() => clientMounted.value ? store.cpu_state.wait   : fa
 const breakOn = computed(() => clientMounted.value ? store.cpu_state.break  : false)
 const mapType = computed(() => clientMounted.value ? store.cpu_state.map_type : "ROM")
 
-watch(breakOn, (curr, _) => {
-    if (curr) {
-        store.getModules()
-    }
-})
-
 onMounted(() => clientMounted.value = true)
 
 </script>

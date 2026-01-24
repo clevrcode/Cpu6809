@@ -1,10 +1,5 @@
 <template>
     <div>
-        <base-dialog
-            :show="!!errorMsg"
-            :title=errorMsg
-            @close="handleError">
-        </base-dialog>
         <div class="debug-header">
             <BaseButton @click="getFile" :enabled="button_enabled">Get File</BaseButton>
             <module-selector :module="selected_module" @change="moduleChanged"></module-selector>
@@ -20,11 +15,6 @@
 
 const store = useCpuStore()
 const selected_module = ref("")
-const errorMsg = ref(null)
-
-function handleError() {
-    errorMsg.value = null
-}
 
 const module = computed(() => {
     if (store.current_module) {
@@ -41,15 +31,8 @@ function moduleChanged(event) {
 }
 
 function getFile() {
-    try {
-        if (selected_module.value) {
-            console.log("get file button clicked")
-            store.getSourceListing(selected_module.value)
-        }
-    } catch (error) {
-        console.log(error)
-        errorMsg.value = error
-    }
+    console.log("get file button clicked")
+    store.getSourceListing(selected_module.value)
 }
 
 function loadSource() {
@@ -65,7 +48,7 @@ function loadSource() {
 
 onMounted(async () => {
     console.log("debugger mounted")
-    if (store.source_info.loaded) {
+    if (store.source_loaded) {
         console.log(`current source: ${store.source_info.module}`)
         selected_module.value = store.source_info.module
     } else {

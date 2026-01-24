@@ -41,7 +41,8 @@ watch(source_loaded, (loaded, _) => {
     if (loaded) {
         console.log("new source loaded")
         console.log(`set scroll pos to pc: ${store.cpu_state.registers["PC"]}`)
-        setTimeout(() => scrollToLine(pgm_counter), 1000)
+        // setTimeout(() => scrollToLine(pgm_counter), 1000)
+        scrollToLine(pgm_counter)
     }
     // else {
     // }

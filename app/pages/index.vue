@@ -14,7 +14,7 @@
          </div>
         <div class="floppy-drives" v-if="clientMounted">
             <div v-for="disk of store.floppy_disks">
-                <FloppyDrive :disk_id="disk.id" :disk_file="disk.name" @change_disk="changeDisk"></FloppyDrive>
+                <FloppyDrive :disk_id="disk.id" :disk_file="disk.name" :motor_on="disk.motor_on" @change_disk="changeDisk"></FloppyDrive>
             </div>
         </div>
     </div>
