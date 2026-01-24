@@ -19,10 +19,10 @@ const clientMounted = ref(false)
 //     return { halted: false, wait: false, break: false, map_type: "ROM" }
 // })
 
-const haltOn  = computed(() => clientMounted.value ? store.cpu_state.halted : false)
-const waitOn  = computed(() => clientMounted.value ? store.cpu_state.wait   : false)
-const breakOn = computed(() => clientMounted.value ? store.cpu_state.break  : false)
-const mapType = computed(() => clientMounted.value ? store.cpu_state.map_type : "ROM")
+const haltOn  = computed(() => clientMounted.value && store.cpu_state ? store.cpu_state.halted : false)
+const waitOn  = computed(() => clientMounted.value && store.cpu_state ? store.cpu_state.wait   : false)
+const breakOn = computed(() => clientMounted.value && store.cpu_state ? store.cpu_state.break  : false)
+const mapType = computed(() => clientMounted.value && store.cpu_state ? store.cpu_state.map_type : "ROM")
 
 onMounted(() => clientMounted.value = true)
 
