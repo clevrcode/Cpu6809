@@ -3,9 +3,9 @@
         <label for="moduleList">OS9 Modules:</label>
         <select id="moduleList" v-model="moduleSelected" @change="moduleChanged">
             <option disabled value="">Select a module</option>
-            <div v-for="module in modules" >
-                <option :value="module.name">{{ module.name }}</option>
-            </div>
+            <option v-for="{ name } in store.modules" :value="name" :key="name">
+                {{ name }}
+            </option>
         </select>
     </div>
 </template>
@@ -23,7 +23,7 @@ const props = defineProps({
 })
 
 const moduleSelected = ref(props.module)
-const modules = computed(() => store.modules)
+// const modules = computed(() => store.modules)
 
 function moduleChanged() {
     console.log(`module changed to : ${moduleSelected.value}`)

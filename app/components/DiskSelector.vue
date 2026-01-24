@@ -9,9 +9,9 @@
                             <label for="select">Select a disk</label>
                             <select id="fileList" v-model="diskSelected" @change="diskChanged" :disabled="!selectEnabled">
                                 <option disabled value="">Select a disk</option>
-                                <div v-for="disk in store.available_disks" >
-                                    <option :value="disk.name">{{ disk.name }}</option>
-                                </div>
+                                <option v-for="{ name } in store.available_disks" :value="name" :key="name">
+                                    {{ name }}
+                                </option>
                             </select>
                         </div>
                     </div>
