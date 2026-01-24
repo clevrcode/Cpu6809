@@ -45,7 +45,7 @@ interface Cursor {
 interface Disk {
   id: number,
   name: string,
-  status: number
+  motor_on: boolean
 }
 
 interface DiskFile {
@@ -107,6 +107,8 @@ export const useCpuStore = defineStore('cpu', () => {
     const breakpoints     = ref<Breakpoint[]>([])
     const tracing_info    = ref<Tracing | null>(null)
     const OS9_loaded      = ref<boolean>(false)
+
+    const source_loaded   = computed(() => source_info.value.loaded)
 
     const socket      = ref<WebSocket | null>(null);
     const error       = ref<Event | null>(null);
@@ -220,6 +222,7 @@ export const useCpuStore = defineStore('cpu', () => {
         }
         else if (key === "disks") 
         {
+          // console.log(JSON.stringify(msg["disks"]))
           floppy_disks.value = msg["disks"]
         }
         else if (key == "breakpoints") 
@@ -379,6 +382,7 @@ export const useCpuStore = defineStore('cpu', () => {
         modules,
         current_module,
         source_info,
+        source_loaded,
         memory,
         selected_memory,
         floppy_disks,

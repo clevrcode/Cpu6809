@@ -103,9 +103,6 @@ onMounted(() => {
     if (store.current_module) {
         console.log(`module: ${store.current_module.name}`)
         moduleSelected.value = store.current_module.name
-    } else {
-        console.log('Get modules')
-        store.getModules()
     }    
 })
 

@@ -75,7 +75,7 @@ const label    = computed(() => props.line.opcode.label)
 const opcode   = computed(() => props.line.opcode.opcode)
 const operand  = computed(() => props.line.opcode.operand)
 const comments = computed(() => props.line.opcode.comment)
-const currline = ref(false)
+// const currline = ref(false)
 const fanfold  = computed(() => (props.index % 6) < 3)
 const canset   = computed(() => (props.line.address != null) && (props.line.code != ""))
 const brkpt_active = ref(false)
@@ -93,8 +93,8 @@ function testBreakpoint() {
 
 function testCurrentLine() {
     if (address.value) {
-        currline.value = address.value == store.cpu_state.registers["PC"]
-        if (currline.value) {
+        // currline.value = address.value == store.cpu_state.registers["PC"]
+        if (address.value == store.cpu_state.registers["PC"]) {
             console.log(`pc: ${pgm_counter.value}, addr: ${address.value}`)
         }
     }
