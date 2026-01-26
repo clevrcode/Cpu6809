@@ -1,9 +1,9 @@
 <template>
-    <GenericForm @submit="sendMemoryRequest" :with_buttons="false">
+    <GenericForm :with_buttons="false">
         <div class="module-list">
             <div class="module-entry-header">
-                <div>NAME</div>
-                <div>START</div>
+                <div class="sort-by" @click="sortByName">NAME</div>
+                <div class="sort-by" @click="sortByStart">START</div>
                 <div>END</div>
                 <div>EXEC</div>
                 <div>OFFSET</div>
@@ -13,7 +13,7 @@
                 <div>ATTR</div>
                 <div>REV</div>
             </div>
-            <div class="module-entry" v-for="module of store.modules">
+            <div class="module-entry" v-for="module of module_list">
                 <div id="name">{{ module.name }}</div>
                 <div id="start">{{ hex_value(module.start) }}</div>
                 <div id="end">{{ hex_value(module.end) }}</div>
@@ -32,6 +32,37 @@
 <script setup>
 
 const store = useCpuStore()
+
+const sortBy = ref('name')
+const module_list = computed(() => {
+    if (sortBy.value === 'name') {
+        return store.modules.sort(sort_method)
+    }
+    if (sortBy.value === 'start') {
+        return store.modules.sort((a,b) => a.start - b.start)
+    }
+    return store.modules
+})
+
+const sortByName = () => {
+    sortBy.value = 'name'
+}
+const sortByStart = () => {
+    sortBy.value = 'start'
+}
+
+const sort_method = (a,b) => {
+    const nameA = a.name.toUpperCase(); // ignore upper and lowercase
+    const nameB = b.name.toUpperCase(); // ignore upper and lowercase
+    if (nameA < nameB) {
+        return -1;
+    }
+    if (nameA > nameB) {
+        return 1;
+    }
+    return 0;
+}
+
 
 const hex_value = (val) => formatNumber(val, 16, 4)
 
@@ -94,17 +125,21 @@ const get_rev = (rev) => rev & 0x0f
     color: white;
     font-size: 1.2rem;
     font-weight: 400;
-    grid-template-columns: 8rem repeat(3, 4.0rem) 6rem 10rem 8rem 4rem 8rem 4rem;
+    grid-template-columns: 8rem repeat(3, 4.5rem) 6rem 10rem 8rem 8rem 8rem 4rem;
 }
 .module-entry {
     display: grid;
     font-size: 1.2rem;
     font-weight: 400;
-    grid-template-columns: 8rem repeat(3, 4.0rem) 6rem 10rem 8rem 4rem 8rem 4rem;
+    grid-template-columns: 8rem repeat(3, 4.5rem) 6rem 10rem 8rem 8rem 8rem 4rem;
 }
 
 #name {
     padding: 2px 10px;
+}
+
+.sort-by {
+    cursor: pointer;
 }
 
 </style>
