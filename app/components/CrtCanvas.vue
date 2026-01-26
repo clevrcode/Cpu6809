@@ -107,7 +107,8 @@ onBeforeUnmount(() => {
 })
 
 function dataInput(ev) {
-    let keyval = 255;
+    // if (crt.value !== document.activeElement)
+    //     return
     if ((ev.key === "Shift") || 
         (ev.key === "CapsLock") || 
         (ev.key === "Control") ||
@@ -116,14 +117,14 @@ function dataInput(ev) {
         (ev.key === "PageUp") ||
         (ev.key === "PageDown") ||
         (ev.key === "End") ||
-        (ev.key === "Home") ||
         (ev.key === "Delete") ||
         (ev.key === "Insert") ||
         (ev.key === "Alt")) {
-        return
+            return
     }
-    console.log(`key: [${ev.key}]`)
 
+    console.log(`key: [${ev.key}]`)        
+    let keyval = 255;
     if (ev.key === "Enter") {
         keyval = 0x0d
         command.value = ""
@@ -136,6 +137,8 @@ function dataInput(ev) {
         }
     } else if (((ev.key == "C")||(ev.key == "c")) && ev.ctrlKey) {
         keyval = 0x03
+    } else if (ev.key === "Home") {
+        keyval = 0x01
     } else if (ev.key == "Escape") {
         keyval = 0x1b
     } else if (ev.key == "ArrowUp") {

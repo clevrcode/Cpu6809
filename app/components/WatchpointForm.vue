@@ -40,7 +40,6 @@
 
 const store = useCpuStore()
 
-const tracingInfo = ref(null)
 const tracingEnabled = ref(false)
 const tracingStart = ref(0)
 const tracingEnd = ref(0)

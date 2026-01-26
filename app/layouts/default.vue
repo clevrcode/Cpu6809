@@ -26,12 +26,14 @@
             @submit="submitBreakpointRequest"
         />
     </transition>
-
+    <transition name="slideform">
+        <ModuleList v-if="showModuleList" class="module-form"> </ModuleList>
+    </transition>
     <div class="main-page">
         <TheHeader></TheHeader>
         <div class="control-panel">
             <ConditionCode />
-            <ControlButtonBar @watch="openWatchpoint" @memory="openMemory" @breakpoint="openBreakpoints"/>
+            <ControlButtonBar @watch="openWatchpoint" @memory="openMemory" @breakpoint="openBreakpoints" @modules="openModuleList"/>
         </div>
         <div class="page_separator">
         </div>
@@ -55,6 +57,7 @@
     const showBreakpoints = ref(false)
     const showMemoryForm = ref(false)
     const showWatchpointForm = ref(false)
+    const showModuleList = ref(false)
     const regFormName = ref("")
     const regFormValue = ref(0)
     const regValSize = ref(16)
@@ -70,6 +73,10 @@
 
     function openBreakpoints() {
         showBreakpoints.value = !showBreakpoints.value
+    }
+
+    function openModuleList() {
+        showModuleList.value = !showModuleList.value
     }
 
     function openForm(name, size) {
@@ -156,6 +163,13 @@
 .memory-form {
     position: fixed;
     top: 25%;
+    right: 0%;
+    z-index: 1;
+}
+
+.module-form {
+    position: fixed;
+    top: 20%;
     right: 0%;
     z-index: 1;
 }

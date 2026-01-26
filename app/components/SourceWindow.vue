@@ -1,6 +1,6 @@
 <template>
     <div class="file-window">
-        <div class="file-content" ref="source-window">
+        <div class="file-content" ref="source-window" v-if="store.source_info.loaded">
             <div v-for="(line, index) in source_content">
                 <source-line :index :line :curline></source-line>
             </div>
