@@ -2,8 +2,8 @@
     <GenericForm :with_buttons="false">
         <div class="module-list">
             <div class="module-entry-header">
-                <div class="sort-by" @click="sortByName">NAME</div>
-                <div class="sort-by" @click="sortByStart">START</div>
+                <div class="sort-by" :class="{active: sortBy === 'name'}" @click="sortByName">NAME</div>
+                <div class="sort-by"  :class="{active: sortBy === 'start'}" @click="sortByStart">START</div>
                 <div>END</div>
                 <div>EXEC</div>
                 <div>OFFSET</div>
@@ -140,6 +140,10 @@ const get_rev = (rev) => rev & 0x0f
 
 .sort-by {
     cursor: pointer;
+}
+.sort-by.active {
+    background-color: yellow;
+    color: black;
 }
 
 </style>
