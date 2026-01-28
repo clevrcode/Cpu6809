@@ -1,7 +1,7 @@
 <template>
     <div class="file-window">
-        <div class="file-content" ref="source-window" v-if="store.source_info.loaded">
-            <div v-for="(line, index) in source_content">
+        <div class="file-content" ref="source-window" >
+            <div v-for="(line, index) in source_content" v-if="source_loaded">
                 <source-line :index :line :curline></source-line>
             </div>
         </div>
@@ -18,7 +18,6 @@ const { _, y } = useScroll(sourceWnd)
 
 const source_content = computed(() => store.source_info.content)
 const source_module  = computed(() => store.source_info.module)
-const module_base    = computed(() => store.source_info.base)
 const source_loaded  = computed(() => store.source_info.loaded)
 const current_module = computed(() => store.current_module ? store.current_module.name : "")
 const pgm_counter    = computed(() => store.cpu_state.registers["PC"])
@@ -40,16 +39,14 @@ watch(pgm_counter, (pc, oldpc) => {
 watch(source_loaded, (loaded, _) => {
     if (loaded) {
         console.log("new source loaded")
-        console.log(`set scroll pos to pc: ${store.cpu_state.registers["PC"]}`)
-        // setTimeout(() => scrollToLine(pgm_counter), 1000)
-        scrollToLine(pgm_counter)
+        console.log(`set scroll pos to pc: ${pgm_counter.value}`)
+        setTimeout(() => scrollToLine(pgm_counter.value), 1000)
     }
-    // else {
-    // }
 })
 
 function scrollToLine(pc) {
-    const relpc = pc - module_base.value
+    const relpc = pc - store.source_info.base
+    console.log(`relpc: ${relpc} base: ${store.source_info.base}`)
     const idx = source_content.value.findIndex((el) => (el.address == relpc) && (el.code.length > 0))
     if (idx >= 0) {
         const lineobj = source_content.value[idx]
@@ -75,7 +72,7 @@ onMounted(() => {
     console.log(`source window height: ${windowHeight}`)
     if (source_loaded) {
         if (source_module == current_module.value) {
-            scrollToLine(pgm_counter)
+            scrollToLine(pgm_counter.value)
         } else {
             // Load file of new module
             curline.value = null

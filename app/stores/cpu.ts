@@ -130,7 +130,7 @@ export const useCpuStore = defineStore('cpu', () => {
         };
 
         socket.value.onmessage = (event) => {
-          console.log('Message received:');
+          // console.log('Message received:');
           ProcessMessage(event.data)
         };
 
@@ -200,7 +200,6 @@ export const useCpuStore = defineStore('cpu', () => {
 
     const ProcessMessage = (data: any) => {
       const msg = JSON.parse(data)
-      console.log(Object.keys(msg))
       for (const key of Object.keys(msg)) {
         if (key === "cpu_state") {
           setCpuState(msg["cpu_state"])
@@ -368,7 +367,7 @@ export const useCpuStore = defineStore('cpu', () => {
     }
 
     const isBreakpoint = (address: number) => {
-        return breakpoints.value.find((b) => b.address === address) != undefined
+        return breakpoints.value.find((b) => !b.temporary && (b.address === address)) != undefined
     }
 
     // const 
