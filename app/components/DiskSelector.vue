@@ -24,7 +24,7 @@
                         <label for="create">Create a disk</label>
                         <input type="text" v-model="diskToCreate" :disabled="selectEnabled">
                         <input type="checkbox" id="double_side" name="double_side" :checked="doubleSide" @change="checkDoubleSide" />
-                        <label for="double-side">Double Side</label>
+                        <label for="double_side">Double Side</label>
                         <fieldset>
                             <legend>Number of tracks</legend>
                             <input type="radio" id="size1" name="dsk_size" value="35" v-model="disk_size" :disabled="selectEnabled"/>

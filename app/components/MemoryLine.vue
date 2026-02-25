@@ -3,7 +3,7 @@
     <div class="table-data" v-for="x of hexData">
         <div class="mem-content" @click="selectMemory(x)" :class="{active: isActive[x.idx]}">{{ x.mem }}</div>
     </div>
-    <div class="table-ascii">{{ asciiString }}</div>
+    <div class="table-ascii"><pre>{{ asciiString }}</pre></div>
 </template>
 
 <script setup>
@@ -74,26 +74,30 @@ onMounted(() => {
 <style scoped>
 
 .table-address {
-    background-color: rgb(87, 180, 211);
+    /* background-color: rgb(87, 180, 211); */
     padding: 0 20px;
 }
 
 .table-data {
-    background-color: lightblue;
+    /* background-color: lightblue; */
     padding: 0 10px;
 }
 
 .table-ascii {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 1.2rem;
     font-weight: 400;
-    background-color: rgb(87, 180, 211);
-    padding: 0 40px;
+    /* background-color: rgb(87, 180, 211); */
+    padding: 0 10px;
+}
+
+.table-ascii pre {
+    margin: 5px;
+    background-color: lightgrey;
 }
 
 .mem-content {
     cursor: pointer;
-    padding: 3px;
+    /* padding: 3px; */
 }
 
 .active {

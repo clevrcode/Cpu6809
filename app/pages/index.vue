@@ -11,6 +11,9 @@
     <div class="main-page">
          <div class="crt-display">
              <CrtCanvas></CrtCanvas>
+             <div v-if="break_active">
+                <disasm></disasm>
+             </div>
          </div>
         <div class="floppy-drives" v-if="clientMounted">
             <div v-for="disk of store.floppy_disks">
@@ -27,6 +30,7 @@
 
     const clientMounted = ref(false)
     const current_drive = ref(null)
+    const break_active = computed(() => store.cpu_state?.break)
 
     onMounted(() => clientMounted.value = true)
 
