@@ -4,6 +4,7 @@
         <div class="sts-window sts-alarm-off" :class="{ 'sts-alarm-on': breakOn }">BREAK</div>
         <div class="sts-window sts-info-off"  :class="{ 'sts-info-on':  waitOn }">WAIT</div>
         <div class="sts-window sts-info-on">{{ mapType }}</div>
+        <div class="sts-window sts-mmu-off" :class="{ 'sts-mmu-on': mmuOn }">MMU</div>
     </div>
 </template>
 
@@ -23,7 +24,7 @@ const haltOn  = computed(() => clientMounted.value && store.cpu_state ? store.cp
 const waitOn  = computed(() => clientMounted.value && store.cpu_state ? store.cpu_state.wait   : false)
 const breakOn = computed(() => clientMounted.value && store.cpu_state ? store.cpu_state.break  : false)
 const mapType = computed(() => clientMounted.value && store.cpu_state ? store.cpu_state.map_type : "ROM")
-
+const mmuOn   = computed(() => clientMounted.value && store.cpu_state ? store.cpu_state.mmu : false)
 onMounted(() => clientMounted.value = true)
 
 </script>
@@ -61,6 +62,15 @@ onMounted(() => clientMounted.value = true)
 .sts-alarm-on {
     background-color: #C22;
     color: white;
+}
+
+.sts-mmu-off {
+    background-color: rgb(246, 246, 124);
+    color: black;
+}
+.sts-mmu-on {
+    background-color: yellow;
+    color: black;
 }
 
 </style>

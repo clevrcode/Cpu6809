@@ -24,7 +24,7 @@ const pgm_counter    = computed(() => store.cpu_state.registers["PC"])
 const curline        = ref(null)
 let windowHeight = 0
 
-watch(pgm_counter, (pc, oldpc) => {
+watch(pgm_counter, (pc, _) => {
     const src = store.source_info.module
     // console.log(`pc changed to ${pc} ${src} : ${current_module.value} ${module_base.value}`)
     if (src && (src == current_module.value)) {

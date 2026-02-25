@@ -9,16 +9,19 @@ interface Register {
   U: number, 
   PC: number, 
   CC: number, 
-  DP: number
+  DP: number,
+  TR: number
 }
 
 interface CpuState { 
   break: boolean, 
   halted: boolean, 
   wait: boolean, 
+  mmu: boolean,
   load: number, 
   map_type: string, 
-  registers: Register 
+  registers: Register,
+  disasm: string
 }
 
 interface Module { 
@@ -42,6 +45,11 @@ interface Cursor {
   rate: number
 }
 
+interface Color {
+  fg: number,
+  bg: number
+}
+
 interface Disk {
   id: number,
   name: string,
@@ -54,6 +62,11 @@ interface DiskFile {
 
 interface Memory {
   updated: boolean,
+  mmu: boolean,
+  tr: number,
+  mmureg: number[],
+  map: number,
+  virtual_address: number,
   address: number,
   data: number[]
 }
@@ -63,7 +76,8 @@ interface Display {
   content: string
   type: string
   size: Point,
-  cursor: Cursor
+  cursor: Cursor,
+  color: Color
 }
 
 interface Source {
@@ -96,13 +110,15 @@ var module_alias: { [modname: string]: string; } = {
 export const useCpuStore = defineStore('cpu', () => {
 
     const cpu_state       = ref<CpuState | null>(null)
-    const display         = ref<Display>({ updated: false, content: "", type: "", size: { x: 0, y: 0}, cursor: { pos: { x: 0, y: 0 }, on: false, rate: 0}})
+    const display         = ref<Display>({ updated: false, content: "", type: "", size: { x: 0, y: 0}, 
+                                           cursor: { pos: { x: 0, y: 0 }, on: false, rate: 0 }, 
+                                           color: { fg: 0, bg: 0 }, })
     const modules         = ref<Module[]>([])
     const floppy_disks    = ref<Disk[]>([])
     const current_module  = ref<Module | null>(null)
     const available_disks = ref<DiskFile[]>([])
     const selected_memory = ref<number | null>(null)
-    const memory          = ref<Memory>({ updated: false, address: 0, data: []})
+    const memory          = ref<Memory>({ updated: false, mmu: false, tr: 0, mmureg: [], map: 0, virtual_address: 0, address: 0, data: []})
     const source_info     = ref<Source>({ file: "", module: "", content: [], base_address: 0, base: 0, loaded: false})
     const breakpoints     = ref<Breakpoint[]>([])
     const tracing_info    = ref<Tracing | null>(null)
@@ -216,6 +232,10 @@ export const useCpuStore = defineStore('cpu', () => {
               pos: obj["cursor"]["pos"],
               on: obj["cursor"]["on"],
               rate: obj["cursor"]["rate"]
+            },
+            color: {
+              fg: obj["color"]["fg"],
+              bg: obj["color"]["bg"]
             }
           }
         }
@@ -251,6 +271,11 @@ export const useCpuStore = defineStore('cpu', () => {
         }
         else if (key == "memory") 
         {
+          memory.value.mmu = msg["memory"]["mmu"]
+          memory.value.tr = msg["memory"]["tr"]
+          memory.value.mmureg = msg["memory"]["mmureg"]
+          memory.value.map = msg["memory"]["map"]
+          memory.value.virtual_address = msg["memory"]["virtual_address"]
           memory.value.address = msg["memory"]["address"]
           memory.value.data = msg["memory"]["data"]
           memory.value.updated = !memory.value.updated

@@ -41,16 +41,16 @@ function fillBackgroundColor(canvas, context, bgcolor) {
 }
 
 function getDisplayParams() {
-    if (isCoco.value) {
-        return { width: 32, height: 16, bg: "green", fg: "black", font: "2.5em Courier", line_spacing: 31 }
-    }
-    return { width: 80, height: 24, bg: "black", fg: "#0f0", font: "1.0em Courier", line_spacing: 20 }
+    // return { width: store.display.width, height: store.display.height, bg: "black", fg: "#0f0", font: "1.0em Courier", line_spacing: 20 }
+    return { width: store.display.size.x, height: store.display.size.y, bg: "black", fg: "#0f0", font: "1.0em Courier", line_spacing: 20 }
 }
 
 function draw() {
     if (crt.value) {
         const context = crt.value.getContext("2d")
         const params = getDisplayParams()
+        // console.log(`fg: ${params.fg} bg: ${params.bg}`)
+        // console.log(`width: ${params.width} height: ${params.height}`)
         fillBackgroundColor(crt.value, context, params.bg)
         context.font = params.font
         context.textAlign = "left"
@@ -89,7 +89,7 @@ function drawCursor() {
 
 onMounted(() => {
     try {
-        window.addEventListener('keydown', dataInput);
+        // window.addEventListener('keydown', dataInput);
         crt.value.focus()
         if (store.display) {
             renderContent(store.display.content)
@@ -107,18 +107,16 @@ onBeforeUnmount(() => {
 })
 
 function dataInput(ev) {
-    // if (crt.value !== document.activeElement)
-    //     return
-    if ((ev.key === "Shift") || 
+    if ((ev.key === "Shift")    || 
         (ev.key === "CapsLock") || 
-        (ev.key === "Control") ||
-        (ev.key === "Dead") ||
-        (ev.key === "NumLock") ||
-        (ev.key === "PageUp") ||
+        (ev.key === "Control")  ||
+        (ev.key === "Dead")     ||
+        (ev.key === "NumLock")  ||
+        (ev.key === "PageUp")   ||
         (ev.key === "PageDown") ||
-        (ev.key === "End") ||
-        (ev.key === "Delete") ||
-        (ev.key === "Insert") ||
+        (ev.key === "End")      ||
+        (ev.key === "Delete")   ||
+        (ev.key === "Insert")   ||
         (ev.key === "Alt")) {
             return
     }
@@ -137,6 +135,8 @@ function dataInput(ev) {
         }
     } else if (((ev.key == "C")||(ev.key == "c")) && ev.ctrlKey) {
         keyval = 0x03
+    } else if (((ev.key == "E")||(ev.key == "e")) && ev.ctrlKey) {
+        keyval = 0x02
     } else if (ev.key === "Home") {
         keyval = 0x01
     } else if (ev.key == "Escape") {
@@ -171,7 +171,7 @@ function renderContent(disp_mem) {
                 disp.push(line)
             }
         }
-        else if (store.display.type === "CRTC") {
+        else if ((store.display.type === "CRTC") || (store.display.type === "COCO3")) {
             const content = data.toString('utf8')
             disp.push(content.substring(0, 80))
             for (let x=80; x < content.length; x += 80) {
@@ -186,6 +186,7 @@ function renderContent(disp_mem) {
 }
 
 watch(updated, (newDisplay, _) => {
+    console.log('render')
     renderContent(store.display.content)
     draw()
 })

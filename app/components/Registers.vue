@@ -11,6 +11,7 @@
         <Register class="register" name="PC" @click="$emit('update', 'PC', 16)" :large="true" />
         <Register class="register" name="CC" @click="$emit('update', 'CC', 8)" :large="false" />
         <Register class="register" name="DP" @click="$emit('update', 'DP', 8)" :large="false" />
+        <Register class="register" name="TR" @click="$emit('update', 'TR', 8)" :large="false" />
     </div>
 </template>
 
