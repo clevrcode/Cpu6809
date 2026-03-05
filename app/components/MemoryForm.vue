@@ -1,6 +1,15 @@
 <template>
     <GenericForm @submit="sendMemoryRequest" :with_buttons="false">
         <div class="main-window">
+            <div class="phys-memory-header">
+                <div>
+                    <input type="checkbox" id="phys-mem" name="phys" value="false" v-model="phys_memory"/>
+                    <label for="phys-mem">Physical Memory</label>
+                </div>
+                <div v-if="phys_memory">
+                    <map-selector :map="phys_map" @changed="mapChanged"></map-selector>
+                </div>
+            </div>
             <div class="header">
                 <h1>MEMORY</h1>
                 <div class="mem-address">
@@ -86,9 +95,16 @@ const task_register   = computed(() => store.memory.tr)
 const map             = computed(() => formatNumber(store.memory.map, radix.value, 2))
 const virtual_address = computed(() => formatNumber(store.memory.virtual_address, radix.value, 5))
 
+const phys_memory  = ref(store.physical_memory_active)
+const phys_map     = computed(() => store.current_map ? store.current_map : 0)
 const mem_origin   = ref("")
 const reg_selected = ref("")
 
+watch(phys_memory, (curr, _) => {
+    console.log(`physical memory: ${phys_memory.value}`)
+    store.physical_memory_active = curr
+    sendMemoryRequest(store.memory.address, 256)
+})
 
 function hexval(v) {
     return formatNumber(v, 16, 2)
@@ -100,6 +116,12 @@ function originInput(ev) {
     }
 }
 
+function mapChanged(map) {
+    console.log(`map changed to: ${map}`)
+    store.current_map = map
+    sendMemoryRequest(store.memory.address, 256)
+}
+
 function setStart() {
     console.log(`set start address: ${start_value.value}`)
     sendMemoryRequest(parseInt(start_value.value, radix.value), 256)
@@ -109,7 +131,11 @@ watch(mem_updated, (curr, _) => {
     address.value = []
     memdata.value = []
     for (let x=0; x < store.memory.data.length; x += 16) {
-        address.value.push(store.memory.address + x)
+        if (phys_memory.value) {
+            address.value.push(store.memory.virtual_address + x)
+        } else {
+            address.value.push(store.memory.address + x)
+        }
         memdata.value.push(store.memory.data.slice(x, x+16))
     }
 })
@@ -148,7 +174,13 @@ function setMemory() {
 }
 
 function sendMemoryRequest(addr, length) {
-    store.getMemory(addr, length)
+    if (phys_memory.value) {
+        const map = store.current_map ? store.current_map : 0
+        console.log(`get phys memory for map ${map} ${store.current_map}`)
+        store.getPhysMemory(map, addr, 256)
+    } else {
+        store.getMemory(addr, length)
+    }
 }
 
 function refresh() {
@@ -186,40 +218,31 @@ function forwardPage() {
 }
 
 function setOriginRegister() {
-    if (store.memory.address == store.cpu_state.registers["X"]) {
-        reg_selected.value = "X"
-    } else if (store.memory.address == store.cpu_state.registers["Y"]) {
-        reg_selected.value = "Y"
-    } else if (store.memory.address == store.cpu_state.registers["U"]) {
-        reg_selected.value = "U"
-    } else if (store.memory.address == store.cpu_state.registers["S"]) {
-        reg_selected.value = "S"
-    } else if (store.memory.address == store.cpu_state.registers["PC"]) {
-        reg_selected.value = "PC"
-    } else {
-        reg_selected.value = ""
+    if (store.cpu_state) {
+        if (store.memory.address == store.cpu_state.registers["X"]) {
+            reg_selected.value = "X"
+        } else if (store.memory.address == store.cpu_state.registers["Y"]) {
+            reg_selected.value = "Y"
+        } else if (store.memory.address == store.cpu_state.registers["U"]) {
+            reg_selected.value = "U"
+        } else if (store.memory.address == store.cpu_state.registers["S"]) {
+            reg_selected.value = "S"
+        } else if (store.memory.address == store.cpu_state.registers["PC"]) {
+            reg_selected.value = "PC"
+        } else {
+            reg_selected.value = ""
+        }
     }
 }
 
-// const mmuData = computed(() => {
-//     let tmpdata = []
-//     for (let i = 0; i < store.memory.mmureg.length; i++) {
-//         let c = props.data[i]
-//         tmpdata.push({
-//             tr: i / 8,
-//             idx: i % 8,
-//             val: formatNumber(c, 16, 2)
-//         })
-//     }
-//     return tmpdata
-// })
-
 onMounted(() => {
     if (store.memory) {
-        console.log(`on mounted ${store.memory.address} ${store.selected_memory}`)
+        // console.log(`on mounted ${store.memory.address} ${store.selected_memory}`)
         sendMemoryRequest(store.memory.address, 256)
+        // mem_origin.value = store.memory.address
         setOriginRegister()
     } else {
+        // mem_origin.value = 0
         sendMemoryRequest(0, 256)
     }
 })
@@ -231,6 +254,14 @@ onMounted(() => {
 .main-window {
     font-family: 'Open+Sans', sans-serif;
     margin: 20px;
+}
+
+.phys-memory-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin: 0 20px;
+    padding: 0 20px;
 }
 
 .header {

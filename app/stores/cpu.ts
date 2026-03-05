@@ -96,7 +96,7 @@ interface Breakpoint {
 }
 
 interface Tracing {
-  enabled: boolean,
+  enable: boolean,
   start: number,
   end: number
 }
@@ -121,8 +121,11 @@ export const useCpuStore = defineStore('cpu', () => {
     const memory          = ref<Memory>({ updated: false, mmu: false, tr: 0, mmureg: [], map: 0, virtual_address: 0, address: 0, data: []})
     const source_info     = ref<Source>({ file: "", module: "", content: [], base_address: 0, base: 0, loaded: false})
     const breakpoints     = ref<Breakpoint[]>([])
-    const tracing_info    = ref<Tracing | null>(null)
+    const tracing_info    = ref<Tracing>({ enable: false, start: 0, end: 0 })
     const OS9_loaded      = ref<boolean>(false)
+
+    const physical_memory_active = ref<boolean>(false)
+    const current_map = ref<number>(0)
 
     const source_loaded   = computed(() => source_info.value.loaded)
 
@@ -284,6 +287,13 @@ export const useCpuStore = defineStore('cpu', () => {
         {
           available_disks.value = msg["available_disks"]
         }
+        else if (key == "tracing")
+        {
+          console.log(msg)
+          tracing_info.value.enable = msg["tracing"]["enable"]
+          tracing_info.value.start = msg["tracing"]["start"]
+          tracing_info.value.end = msg["tracing"]["end"]
+        }
         else 
         {
           console.log(`Unknown message [${key}]`)
@@ -375,6 +385,14 @@ export const useCpuStore = defineStore('cpu', () => {
       sendCommand('memory', { operation: 'set', data: { address, value }})
     }
 
+    const getPhysMemory = ( map: number, start: number, length: number ) => {
+      sendCommand('phys_memory', { operation: 'get', range: { map, start, length }})
+    }
+
+    const setPhysMemory = ( map: number, address: number, value: number ) => {
+      sendCommand('phys_memory', { operation: 'set', data: { map, address, value }})
+    }
+
     const getModules = () => {
       sendCommand('modules', { operation: 'get' })
     }
@@ -395,6 +413,15 @@ export const useCpuStore = defineStore('cpu', () => {
         return breakpoints.value.find((b) => !b.temporary && (b.address === address)) != undefined
     }
 
+    const getTracing = () => {
+      sendCommand('tracing', { operation: "get" } )
+    }
+
+    const setTracing = (enable: boolean, start: number, end: number) => {
+      console.log(`setTracing(${enable}, ${start}, ${end})`)
+      sendCommand('tracing', { operation: "set", trace: { enable, start, end } } )
+    }
+
     // const 
 
     return {
@@ -411,6 +438,9 @@ export const useCpuStore = defineStore('cpu', () => {
         selected_memory,
         floppy_disks,
         available_disks,
+        physical_memory_active,
+        current_map,
+        tracing_info,
         connect,
         sendCommand,
         disconnect,
@@ -426,11 +456,15 @@ export const useCpuStore = defineStore('cpu', () => {
         setRegister,
         getMemory,
         setMemory,
+        getPhysMemory,
+        setPhysMemory,
         setSelectedMemory,
         getModules,
         getSourceListing,
         addBreakpoint,
         deleteBreakpoint,
-        isBreakpoint
+        isBreakpoint,
+        getTracing,
+        setTracing
     }
 })

@@ -1,7 +1,7 @@
 <template>
     <div >
         <div class="display">
-            <canvas ref="crt" id="crtscreen" width="800" height="500">
+            <canvas ref="crt" id="crtscreen" tabindex="0" @keydown="handleKeyEvent" width="800" height="500">
                 Unsupported browser
             </canvas>
         </div>
@@ -87,9 +87,24 @@ function drawCursor() {
     timerId = setTimeout(drawCursor, 500)
 }
 
+const handleKeyEvent = (event) => {
+    // Access the canvas element using myCanvas.value
+    const canvas = crt.value;
+    console.log(`key pressed on canvas: ${event.key}`)
+    // Example: prevent default behavior for certain keys like space or arrows if needed
+    if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+        event.preventDefault();
+    }
+    else {
+        dataInput(event)
+    }
+}
+
 onMounted(() => {
     try {
-        // window.addEventListener('keydown', dataInput);
+        if (crt.value) {
+            crt.value.focus()
+        }
         crt.value.focus()
         if (store.display) {
             renderContent(store.display.content)
@@ -103,7 +118,7 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     clearTimeout(timerId)
-    window.removeEventListener('keydown', dataInput);
+    // window.removeEventListener('keydown', dataInput);
 })
 
 function dataInput(ev) {
@@ -174,7 +189,9 @@ function renderContent(disp_mem) {
         else if ((store.display.type === "CRTC") || (store.display.type === "COCO3")) {
             const content = data.toString('utf8')
             disp.push(content.substring(0, 80))
+            // console.log(`00 : [${content.substring(0, 80)}]`)
             for (let x=80; x < content.length; x += 80) {
+                // console.log(`${x} : [${content.substring(x, x+80)}]`)
                 disp.push(content.substring(x, x+80))
             }
         }
@@ -202,10 +219,10 @@ canvas:focus {
     border: 5px solid white;
 }
 
-.crt-input input {
+/* .crt-input input {
     width: 810px;
     background-color: #0b0;
     font-size: 24px;
-}
+} */
 
 </style>

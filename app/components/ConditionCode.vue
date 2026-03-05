@@ -3,8 +3,8 @@
         <div class="cc-row">
             <div class="cc-window cc-info-off" :class="{ 'cc-info-on': entireOn }">ENTIRE</div>
             <div class="cc-window cc-irq-off" :class="{ 'cc-irq-on': firqOn }">FIRQ</div>
-            <div class="cc-window cc-irq-off" :class="{ 'cc-irq-on': irqOn }">IRQ</div>
             <div class="cc-window cc-info-off" :class="{ 'cc-info-on': halfOn }">HALF-CARRY</div>
+            <div class="cc-window cc-irq-off" :class="{ 'cc-irq-on': irqOn }">IRQ</div>
         </div>
         <div class="cc-row">
             <div class="cc-window cc-info-off" :class="{ 'cc-info-on': negativeOn }">NEGATIVE</div>

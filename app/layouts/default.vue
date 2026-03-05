@@ -76,6 +76,7 @@
     }
 
     function openModuleList() {
+        store.getModules()
         showModuleList.value = !showModuleList.value
     }
 
@@ -162,7 +163,7 @@
 
 .memory-form {
     position: fixed;
-    top: 20%;
+    top: 18%;
     right: 0%;
     z-index: 1;
 }

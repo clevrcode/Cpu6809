@@ -4,14 +4,14 @@
             <legend>Execution Tracing</legend>
             <div class="tracing-form">
                 <div class="form-checkbox">
-                    <input type="checkbox" id="enable" name="enable" :checked="tracingEnabled" @change="checkTracing" />
+                    <input type="checkbox" id="enable" name="enable" v-model="tEnabled" @change="checkTracing" />
                     <label for="enable">Tracing Enabled</label>
                 </div>
                 <div class="form-grid">
                         <label for="trace_start">Starting Address</label>
-                        <input type="text" id="trace_start" style="text-transform: uppercase" pattern="[a-fA-F0-9]{1,5}" v-model="tracingStart">
+                        <input type="text" id="trace_start" style="text-transform: uppercase" pattern="[a-fA-F0-9]{1,5}" v-model="tStart">
                         <label for="trace_end">End Address</label>
-                        <input type="text" id="trace_end" style="text-transform: uppercase" pattern="[a-fA-F0-9]{1,5}" v-model="tracingEnd">
+                        <input type="text" id="trace_end" style="text-transform: uppercase" pattern="[a-fA-F0-9]{1,5}" v-model="tEnd">
                 </div>
             </div>
         </fieldset>
@@ -40,13 +40,26 @@
 
 const store = useCpuStore()
 
-const tracingEnabled = ref(false)
-const tracingStart = ref(0)
-const tracingEnd = ref(0)
+const radix = ref(16)
 
-const watchEnabled = ref(false)
+const tEnabled = ref(false)
+const tStart = ref(0)
+const tEnd = ref(0)
+
+const tracingEnabled = computed(() => store.tracing_info.enable)
+const tracingStart = computed(() => store.tracing_info.start)
+const tracingEnd = computed(() => store.tracing_info.end)
+
+watch(tracingEnabled, (enbl, _) => {
+    console.log(`watch: tracing enabled ${enbl}`)
+    tEnabled.value = enbl
+})
+watch(tracingStart, (start, _) => tStart.value = formatNumber(start, radix.value, 4) )
+watch(tracingEnd, (end, _) => tEnd.value = formatNumber(end, radix.value, 4))
+
 const watchStart = ref(0)
 const watchEnd = ref(0)
+const watchEnabled = ref(false)
 
 function checkTracing() {
 }
@@ -56,15 +69,20 @@ function checkWatch() {
 
 
 function sendTracingRequest() {
-    console.log("send tracing request")
+    if (tStart.value < tEnd.value) {
+        console.log("send tracing request")
+        const start = Number.parseInt(tStart.value, radix.value);
+        const end   = Number.parseInt(tEnd.value, radix.value);
+        store.setTracing(tEnabled.value, start, end)
+    }
 }
 
 onMounted(() => {
-    if (store.tracing_info) {
-        tracingEnabled.value = store.tracing_info.enabled
-        tracingStart.value = formatNumber(store.tracing_info.start, 16, 4)
-        tracingEnd.value = formatNumber(store.tracing_info.end, 16, 4)
-    }
+    console.log(store.tracing_info)
+    tEnabled.value = store.tracing_info.enable
+    tStart.value = formatNumber(store.tracing_info.start, radix.value, 4)
+    tEnd.value = formatNumber(store.tracing_info.end, radix.value, 4)
+    store.getTracing()
 })
 
 </script>

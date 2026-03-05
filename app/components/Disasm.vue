@@ -9,6 +9,10 @@
     const store = useCpuStore()
     const disasm = computed(() => store.cpu_state.disasm)
 
+    const clientMounted = ref(false)
+
+    onMounted(() => clientMounted.value = true)
+
 </script>
 
 <style scoped>

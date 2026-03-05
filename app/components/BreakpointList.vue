@@ -23,7 +23,7 @@ const store = useCpuStore()
 const moduleSelected = ref("")
 const breakpoint = ref("")
 
-let useModule = ref(true)
+let useModule = ref(false)
 
 function moduleChanged(event) {
     console.log(`module changed to: ${event.target.value}`)

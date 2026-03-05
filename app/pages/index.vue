@@ -30,7 +30,7 @@
 
     const clientMounted = ref(false)
     const current_drive = ref(null)
-    const break_active = computed(() => store.cpu_state?.break)
+    const break_active = computed(() => store.cpu_state?.break && clientMounted.value)
 
     onMounted(() => clientMounted.value = true)
 
