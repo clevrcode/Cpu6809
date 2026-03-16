@@ -9,12 +9,17 @@
     </div>
     <!-- ============================== -->
     <div class="main-page">
-         <div class="crt-display">
-             <CrtCanvas></CrtCanvas>
-             <div v-if="break_active">
-                <disasm></disasm>
+        <div>
+            <div v-if="clientMounted">
+                <SystemLoad></SystemLoad>
+            </div>
+            <div class="crt-display">
+                 <CrtCanvas></CrtCanvas>
+                 <div v-if="break_active">
+                    <disasm></disasm>
+                 </div>
              </div>
-         </div>
+        </div>
         <div class="floppy-drives" v-if="clientMounted">
             <div v-for="disk of store.floppy_disks">
                 <FloppyDrive :disk_id="disk.id" :disk_file="disk.name" :motor_on="disk.motor_on" @change_disk="changeDisk"></FloppyDrive>

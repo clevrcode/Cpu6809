@@ -19,6 +19,7 @@ interface CpuState {
   wait: boolean, 
   mmu: boolean,
   load: number, 
+  overrun: number,
   map_type: string, 
   registers: Register,
   disasm: string

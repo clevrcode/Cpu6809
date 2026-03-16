@@ -90,7 +90,6 @@ function drawCursor() {
 const handleKeyEvent = (event) => {
     // Access the canvas element using myCanvas.value
     const canvas = crt.value;
-    console.log(`key pressed on canvas: ${event.key}`)
     // Example: prevent default behavior for certain keys like space or arrows if needed
     if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
         event.preventDefault();
@@ -203,7 +202,7 @@ function renderContent(disp_mem) {
 }
 
 watch(updated, (newDisplay, _) => {
-    console.log('render')
+    // console.log('render')
     renderContent(store.display.content)
     draw()
 })

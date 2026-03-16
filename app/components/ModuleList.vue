@@ -15,9 +15,9 @@
             </div>
             <div class="module-entry" v-for="module of module_list">
                 <div id="name">{{ module.name }}</div>
-                <div id="start">{{ hex_value(module.start) }}</div>
-                <div id="end">{{ hex_value(module.end) }}</div>
-                <div id="exec">{{ hex_value(module.exec_offset + module.start) }}</div>
+                <div id="start">{{ hex_value(module.start, 6) }}</div>
+                <div id="end">{{ hex_value(module.end, 6) }}</div>
+                <div id="exec">{{ hex_value(module.exec_offset + module.start, 6) }}</div>
                 <div id="offset">{{ hex_value(module.exec_offset) }}</div>
                 <div id="type">{{ module_type(module.type) }}</div>
                 <div id="language">{{ module_language(module.language) }}</div>
@@ -32,6 +32,8 @@
 <script setup>
 
 const store = useCpuStore()
+
+const radix = ref(16)
 
 const sortBy = ref('name')
 const module_list = computed(() => {
@@ -64,7 +66,7 @@ const sort_method = (a,b) => {
 }
 
 
-const hex_value = (val) => formatNumber(val, 16, 4)
+const hex_value = (val, len=4) => formatNumber(val, radix.value, len)
 
 const module_type = (type) => {
     if (type == 1)
@@ -125,13 +127,13 @@ const get_rev = (rev) => rev & 0x0f
     color: white;
     font-size: 1.2rem;
     font-weight: 400;
-    grid-template-columns: 8rem repeat(3, 4.5rem) 6rem 10rem 8rem 8rem 8rem 4rem;
+    grid-template-columns: 8rem repeat(3, 5.5rem) 6rem 10rem 8rem 8rem 8rem 4rem;
 }
 .module-entry {
     display: grid;
     font-size: 1.2rem;
     font-weight: 400;
-    grid-template-columns: 8rem repeat(3, 4.5rem) 6rem 10rem 8rem 8rem 8rem 4rem;
+    grid-template-columns: 8rem repeat(3, 5.5rem) 6rem 10rem 8rem 8rem 8rem 4rem;
 }
 
 #name {

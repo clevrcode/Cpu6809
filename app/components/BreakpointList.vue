@@ -22,6 +22,8 @@ const store = useCpuStore()
 
 const moduleSelected = ref("")
 const breakpoint = ref("")
+const radix = ref(16)
+
 
 let useModule = ref(false)
 
@@ -53,7 +55,7 @@ const breakpoints = computed(() => {
 })
 
 function hexAddress(addr) {
-    return formatNumber(addr, 16, 4)
+    return formatNumber(addr, radix.value, 4)
 }
 
 function findModule(addr) {
