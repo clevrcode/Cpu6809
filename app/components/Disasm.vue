@@ -7,7 +7,10 @@
 <script setup>
 
     const store = useCpuStore()
-    const disasm = computed(() => store.cpu_state.disasm)
+    const disasm = computed(() => {
+        const addr = formatNumber(store.cpu_state.registers.PC, store.radix, 4)
+        return addr + " " + store.cpu_state.disasm
+    })
 
     const clientMounted = ref(false)
 

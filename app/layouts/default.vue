@@ -22,8 +22,9 @@
     </transition>
     <transition name="slideform">
         <BreakpointList v-if="showBreakpoints" class="breakpoint-form"
-            @cancel="canCloseBreakpoints"
-            @submit="submitBreakpointRequest"
+        @cancel="canCloseBreakpoints"
+        @submit="submitBreakpointRequest"
+        :radix="store.radix"
         />
     </transition>
     <transition name="slideform">
@@ -116,8 +117,9 @@
         canCloseMemory()
     }
 
-    function submitBreakpointRequest() {
+    function submitBreakpointRequest(address) {
         console.log("submit breakpoints")
+        store.addBreakpoint(address, true)
     }
 
 </script>

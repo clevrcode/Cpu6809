@@ -33,8 +33,6 @@
 
 const store = useCpuStore()
 
-const radix = ref(16)
-
 const sortBy = ref('name')
 const module_list = computed(() => {
     if (sortBy.value === 'name') {
@@ -66,7 +64,7 @@ const sort_method = (a,b) => {
 }
 
 
-const hex_value = (val, len=4) => formatNumber(val, radix.value, len)
+const hex_value = (val, len=4) => formatNumber(val, store.radix, len)
 
 const module_type = (type) => {
     if (type == 1)

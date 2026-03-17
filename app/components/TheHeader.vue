@@ -1,7 +1,10 @@
 <template>
     <div class="header">
         <div class="header_title">
-            CPU 6809 Debugger
+            CPU OS9 Debugger
+        </div>
+        <div class="header-selector">
+            <RadixSelector></RadixSelector>
         </div>
         <nav class="header-nav">
             <li class="header-nav_item">
@@ -24,7 +27,9 @@
 .header {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     background-color: #fb660c;
+    height: 70px;
     margin: 0;
     padding: 0;
 }
@@ -36,17 +41,17 @@
     font-weight: 400;
     font-style: normal;
     color: white;
-    border-bottom: solid 2px white;
-    width: 100%;
-    padding: 0 10px;
+    /* border-bottom: solid 2px white; */
+    padding: 10px 10px 5px 10px;
 }
 
 .header-bar {
     background-color: #f99a08;
-    height: 20px;
+    height: 25px;
     width: 100%;
     padding: 0;
     margin: 0;
+    border-top: solid 4px white;
 }
 
 .header-nav {
@@ -54,13 +59,12 @@
     flex-direction: row;
     /* background-color: black; */
     font-weight: 300;
-    font-style: normal;
-    border-bottom: solid 2px white;
+    /* font-style: normal; */
 }
 
 .header-nav_item {
     display: inline-block;
-    padding: 1.0rem;
+    padding: 2.0rem;
 }
 
 .header-nav_item a {

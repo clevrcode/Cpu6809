@@ -28,10 +28,10 @@ const hex_value = computed(() => {
     if (clientMounted.value && store.cpu_state) {
         modified.value = store.cpu_state.registers[props.name] != prevValue
         prevValue = store.cpu_state.registers[props.name]
-        return formatNumber(store.cpu_state.registers[props.name], 16, props.large ? 4 : 2)
+        return formatNumber(store.cpu_state.registers[props.name], store.radix, props.large ? 4 : 2)
     }
     modified.value = false
-    return formatNumber(0, 16, props.large ? 4 : 2)
+    return formatNumber(0, store.radix, props.large ? 4 : 2)
 })
 
 onMounted(() => clientMounted.value = true)

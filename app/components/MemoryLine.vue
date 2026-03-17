@@ -31,7 +31,7 @@ const asciiString = computed(() => {
     }
     return str
 })
-const hexAddress = computed(() => formatNumber(props.address, 16, 4))
+const hexAddress = computed(() => formatNumber(props.address, store.radix, 4))
 const hexData = computed(() => {
     let tmpdata = []
     for (let i = 0; i < props.data.length; i++) {
@@ -39,7 +39,7 @@ const hexData = computed(() => {
         tmpdata.push({
             addr: props.address + i,
             idx: i,
-            mem: formatNumber(c, 16, 2)
+            mem: formatNumber(c, store.radix, 2)
         })
         isActive.value[i] = (props.address + i) == store.selected_memory
     }
@@ -48,7 +48,7 @@ const hexData = computed(() => {
 
 function setActive(addr) {
     isActive.value.fill(false)
-    // console.log(`start address: ${addr.toString(16)} ${addr % props.data.length}`)
+    // console.log(`start address: ${addr.toString(store.radix)} ${addr % props.data.length}`)
     if ((addr >= props.address) && (addr < (props.address + props.data.length))) {
         isActive.value[addr % props.data.length] = true
     }
@@ -65,7 +65,7 @@ function selectMemory(obj) {
 }
 
 onMounted(() => {
-    // console.log("memory line mounted")
+    // console.log(`radix: ${store.radix}`)
     isActive.value = new Array(props.data.length).fill(false);
 })
 

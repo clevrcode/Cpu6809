@@ -25,19 +25,19 @@
                 <fieldset>
                     <legend>From Register {{ reg_selected }}</legend>
                     <div class="radio-buttons">
-                        <div class="reg-radio"><input type="radio" id="reg_x" name="reg_" value="X" v-model="reg_selected"/>
+                        <div><input type="radio" id="reg_x" name="reg_" value="X" v-model="reg_selected"/>
                             <label for="reg_x">X</label>
                         </div>
-                        <div class="reg-radio"><input type="radio" id="reg_y" name="reg_" value="Y" v-model="reg_selected"/>
+                        <div><input type="radio" id="reg_y" name="reg_" value="Y" v-model="reg_selected"/>
                             <label for="reg_y">Y</label>
                         </div>
-                        <div class="reg-radio"><input type="radio" id="reg_u" name="reg_" value="U" v-model="reg_selected"/>
+                        <div><input type="radio" id="reg_u" name="reg_" value="U" v-model="reg_selected"/>
                             <label for="reg_u">U</label>
                         </div>
-                        <div class="reg-radio"><input type="radio" id="reg_s" name="reg_" value="S" v-model="reg_selected"/>
+                        <div><input type="radio" id="reg_s" name="reg_" value="S" v-model="reg_selected"/>
                             <label for="reg_s">S</label>
                         </div>
-                        <div class="reg-radio"><input type="radio" id="reg_pc" name="reg_" value="PC" v-model="reg_selected"/>
+                        <div><input type="radio" id="reg_pc" name="reg_" value="PC" v-model="reg_selected"/>
                             <label for="reg_pc">PC</label>
                         </div>
                     </div>
@@ -67,8 +67,7 @@
                 <button @click="forwardPage"><IconsFastForward /></button>
             </div>
             <div class="mmu-registers">
-                <MmuInfo tr="0" :data="mmu_registers0"></MmuInfo>
-                <MmuInfo tr="1" :data="mmu_registers1"></MmuInfo>
+                <MmuInfo :data="mmu_registers"></MmuInfo>
             </div>
         </div>
     </GenericForm>
@@ -83,17 +82,15 @@ const mem_change = ref("")
 
 const memdata = ref([])
 const address = ref([])
-const radix = ref(16)
 
 const mem_start       = computed(() => store.memory?.address)
-const mem_select      = computed(() => store.selected_memory ? formatNumber(store.selected_memory, radix.value, 4) : "")
+const mem_select      = computed(() => store.selected_memory ? formatNumber(store.selected_memory, store.radix, 4) : "")
 const mem_updated     = computed(() => store.memory.updated)
-const mmu_enabled     = computed(() => store.memory.mmu)
-const mmu_registers0  = computed(() => store.memory.mmureg.slice(0,8))
-const mmu_registers1  = computed(() => store.memory.mmureg.slice(8))
-const task_register   = computed(() => store.memory.tr)
-const map             = computed(() => formatNumber(store.memory.map, radix.value, 2))
-const virtual_address = computed(() => formatNumber(store.memory.virtual_address, radix.value, 5))
+const mmu_enabled     = computed(() => store.cpu_state.mmu)
+const mmu_registers   = computed(() => store.cpu_state.mmuregs)
+const task_register   = computed(() => store.cpu_state.registers.TR)
+const map             = computed(() => formatNumber(store.memory.map, store.radix, 2))
+const virtual_address = computed(() => formatNumber(store.memory.virtual_address, store.radix, 5))
 
 const phys_memory  = ref(store.physical_memory_active)
 const phys_map     = computed(() => store.current_map ? store.current_map : 0)
@@ -107,7 +104,7 @@ watch(phys_memory, (curr, _) => {
 })
 
 function hexval(v) {
-    return formatNumber(v, 16, 2)
+    return formatNumber(v, store.radix, 2)
 }
 
 function originInput(ev) {
@@ -124,7 +121,7 @@ function mapChanged(map) {
 
 function setStart() {
     console.log(`set start address: ${start_value.value}`)
-    sendMemoryRequest(parseInt(start_value.value, radix.value), 256)
+    sendMemoryRequest(parseInt(start_value.value, store.radix), 256)
 }
 
 watch(mem_updated, (curr, _) => {
@@ -148,12 +145,12 @@ watch(reg_selected, (curr, _) => {
 })
 
 watch(mem_start, (curr, _) => {
-    mem_origin.value = computed(() => formatNumber(curr, radix.value, 4))
+    mem_origin.value = computed(() => formatNumber(curr, store.radix, 4))
     setOriginRegister()
 })
 
 function selectMemory(obj) {
-    console.log(`select memory ${obj.addr.toString(radix.value)} ${obj.mem}`)
+    console.log(`select memory ${obj.addr.toString(store.radix)} ${obj.mem}`)
     store.setSelectedMemory(obj.addr)
 }
 
@@ -166,7 +163,7 @@ function changeInput(ev) {
 function setMemory() {
     if (mem_change.value.length > 0) {
         const address = store.selected_memory
-        const value = parseInt(mem_change.value, radix.value)
+        const value = parseInt(mem_change.value, store.radix)
         console.log(`set memory: ${address} ${value}`)
         store.setMemory(address, value)
         sendMemoryRequest(store.memory.address, 256)
@@ -286,7 +283,7 @@ legend {
     color: white;
     background-color: black;
     padding: 5px 10px;
-    border-radius: 0;
+    border-radius: 8px;
     border: 0;
     font-size: 14px;
 }

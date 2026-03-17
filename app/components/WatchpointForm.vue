@@ -40,8 +40,6 @@
 
 const store = useCpuStore()
 
-const radix = ref(16)
-
 const tEnabled = ref(false)
 const tStart = ref(0)
 const tEnd = ref(0)
@@ -54,8 +52,8 @@ watch(tracingEnabled, (enbl, _) => {
     console.log(`watch: tracing enabled ${enbl}`)
     tEnabled.value = enbl
 })
-watch(tracingStart, (start, _) => tStart.value = formatNumber(start, radix.value, 4) )
-watch(tracingEnd, (end, _) => tEnd.value = formatNumber(end, radix.value, 4))
+watch(tracingStart, (start, _) => tStart.value = formatNumber(start, store.radix, 4) )
+watch(tracingEnd, (end, _) => tEnd.value = formatNumber(end, store.radix, 4))
 
 const watchStart = ref(0)
 const watchEnd = ref(0)
@@ -71,8 +69,8 @@ function checkWatch() {
 function sendTracingRequest() {
     if (tStart.value < tEnd.value) {
         console.log("send tracing request")
-        const start = Number.parseInt(tStart.value, radix.value);
-        const end   = Number.parseInt(tEnd.value, radix.value);
+        const start = Number.parseInt(tStart.value, store.radix);
+        const end   = Number.parseInt(tEnd.value, store.radix);
         store.setTracing(tEnabled.value, start, end)
     }
 }
@@ -80,8 +78,8 @@ function sendTracingRequest() {
 onMounted(() => {
     console.log(store.tracing_info)
     tEnabled.value = store.tracing_info.enable
-    tStart.value = formatNumber(store.tracing_info.start, radix.value, 4)
-    tEnd.value = formatNumber(store.tracing_info.end, radix.value, 4)
+    tStart.value = formatNumber(store.tracing_info.start, store.radix, 4)
+    tEnd.value = formatNumber(store.tracing_info.end, store.radix, 4)
     store.getTracing()
 })
 

@@ -3,7 +3,7 @@
         <label for="moduleList">OS9 Modules:</label>
         <select id="moduleList" v-model="moduleSelected" @change="moduleChanged">
             <option disabled value="">Select a module</option>
-            <option v-for="{ name } in store.modules" :value="name" :key="name">
+            <option v-for="{ name } in executableModules" :value="name" :key="name">
                 {{ name }}
             </option>
         </select>
@@ -12,7 +12,7 @@
 
 <script setup>
 
-const emit = defineEmits(['changed'])
+const emit = defineEmits(['module_changed'])
 const store = useCpuStore()
 
 const props = defineProps({
@@ -22,12 +22,17 @@ const props = defineProps({
     }
 })
 
+const executableModules = computed(() => {
+    // console.log(store.modules)
+    return store.modules.filter((m) => m.type != 15)
+})
+
 const moduleSelected = ref(props.module)
 // const modules = computed(() => store.modules)
 
 function moduleChanged() {
     console.log(`module changed to : ${moduleSelected.value}`)
-    emit('changed', moduleSelected.value)
+    emit('module_changed', moduleSelected.value)
 }
 
 </script>

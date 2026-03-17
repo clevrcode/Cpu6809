@@ -12,7 +12,7 @@ const store = useCpuStore()
 
 const system_load = computed(() => {
     if (store.cpu_state) 
-        return store.cpu_state.load * 100.0
+        return (store.cpu_state.load * 100.0).toFixed(1)
     return 0.0
 })
 
@@ -43,11 +43,13 @@ progress[value]::-webkit-progress-bar {
 }
 
 .system-load {
+    font-size: 1.5rem;
     color: black;
     background-color: yellow;
 }
 
 .system-overrun {
+    font-size: 1.5rem;
     color: white;
     background-color: red;
 }

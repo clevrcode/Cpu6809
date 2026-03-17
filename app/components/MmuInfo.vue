@@ -1,8 +1,20 @@
 <template>
     <div class="mmu-row">
         <div class="mmu-content">
-            TR{{ tr }}:
-            <div v-for="val in data0">
+            <div>TR</div>
+            <div v-for="val in 8">
+                {{ val-1 }}
+            </div>
+        </div>
+        <div class="mmu-content">
+            0:
+            <div v-for="val in registers0">
+                {{ hexval(val) }}
+            </div>
+        </div>
+        <div class="mmu-content">
+            1:
+            <div v-for="val in registers1">
                 {{ hexval(val) }}
             </div>
         </div>
@@ -12,9 +24,11 @@
 <script setup>
 
 const props = defineProps({
-    tr: { type: String, required: true },
     data: { type: Array, required: true }
 })
+
+const registers0  = computed(() => props.data.slice(0, 8))
+const registers1  = computed(() => props.data.slice(8))
 
 const data0 = computed(() => props.data)
 // const data1 = computed(() => props.data.slice(8))

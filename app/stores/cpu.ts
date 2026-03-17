@@ -22,6 +22,7 @@ interface CpuState {
   overrun: number,
   map_type: string, 
   registers: Register,
+  mmuregs: number[],
   disasm: string
 }
 
@@ -63,9 +64,6 @@ interface DiskFile {
 
 interface Memory {
   updated: boolean,
-  mmu: boolean,
-  tr: number,
-  mmureg: number[],
   map: number,
   virtual_address: number,
   address: number,
@@ -109,7 +107,7 @@ var module_alias: { [modname: string]: string; } = {
 };
 
 export const useCpuStore = defineStore('cpu', () => {
-
+    const radix           = ref(16)
     const cpu_state       = ref<CpuState | null>(null)
     const display         = ref<Display>({ updated: false, content: "", type: "", size: { x: 0, y: 0}, 
                                            cursor: { pos: { x: 0, y: 0 }, on: false, rate: 0 }, 
@@ -119,7 +117,7 @@ export const useCpuStore = defineStore('cpu', () => {
     const current_module  = ref<Module | null>(null)
     const available_disks = ref<DiskFile[]>([])
     const selected_memory = ref<number | null>(null)
-    const memory          = ref<Memory>({ updated: false, mmu: false, tr: 0, mmureg: [], map: 0, virtual_address: 0, address: 0, data: []})
+    const memory          = ref<Memory>({ updated: false, map: 0, virtual_address: 0, address: 0, data: []})
     const source_info     = ref<Source>({ file: "", module: "", content: [], base_address: 0, base: 0, loaded: false})
     const breakpoints     = ref<Breakpoint[]>([])
     const tracing_info    = ref<Tracing>({ enable: false, start: 0, end: 0 })
@@ -275,9 +273,6 @@ export const useCpuStore = defineStore('cpu', () => {
         }
         else if (key == "memory") 
         {
-          memory.value.mmu = msg["memory"]["mmu"]
-          memory.value.tr = msg["memory"]["tr"]
-          memory.value.mmureg = msg["memory"]["mmureg"]
           memory.value.map = msg["memory"]["map"]
           memory.value.virtual_address = msg["memory"]["virtual_address"]
           memory.value.address = msg["memory"]["address"]
@@ -426,6 +421,7 @@ export const useCpuStore = defineStore('cpu', () => {
     // const 
 
     return {
+        radix,
         isConnected,
         error,
         cpu_state,
