@@ -10,14 +10,16 @@
         <div class="break-modules" v-if="useModule">
             <module-selector :module="moduleSelected" @module_changed="moduleChanged"></module-selector>
         </div>
-        <div class="module-entries" v-if="(moduleType == 14) || (moduleType == 13)">
+        <div class="module-entries" v-if="(moduleType == 14) || (moduleType == 13) || (moduleType == 1)">
             <div class="module-entries_fileManager" v-if="moduleType == 13">
                 <EntrySelector_FM @entry_changed="entryChanged"></EntrySelector_FM>
             </div>
-            <div class="module-entries_deviceDriver" v-else>
+            <div class="module-entries_deviceDriver" v-else-if="moduleType == 14">
                 <EntrySelector_DD @entry_changed="entryChanged"></EntrySelector_DD>
             </div>
-
+            <div class="module-entries-program" v-else>
+                <EntrySelector_PGM @entry_changed="entryChanged" :exec_offset="execOffset"></EntrySelector_PGM>
+            </div>
         </div>
         <div class="break-input">
             <input type="text" :placeholder="breakpoint_hint" spellcheck="false" @keydown="dataInput" v-model="breakpoint">
@@ -42,6 +44,7 @@ const breakpoint = ref("")
 const useModule = ref(false)
 const moduleSelected = ref("")
 const moduleType = ref(0)
+const execOffset = ref(0)
 const applyEnabled = computed(() => breakpoint.value.length > 0)
 
 const breakpoint_hint = computed(() => {
@@ -55,9 +58,16 @@ function moduleChanged(event) {
 }
 
 function entryChanged(offset) {
-   console.log(`entry changed to: ${offset}`)
-//    let addr = getBreakpointAddress(offset)
-   breakpoint.value = formatNumber(offset, props.radix, 0)
+    console.log(`entry changed to: ${offset}`)
+    //    let addr = getBreakpointAddress(offset)
+    if (moduleType.value == 1) {
+        if (offset != 0)
+            breakpoint.value = formatNumber(offset, props.radix, 0)
+        else
+            breakpoint.value = ""
+    } else {
+        breakpoint.value = formatNumber(offset, props.radix, 0)
+    }
 }
 
 function setSelectedModule(name) {
@@ -65,11 +75,13 @@ function setSelectedModule(name) {
     if (module) {
         moduleSelected.value = module.name
         moduleType.value = module.type
+        execOffset.value = module.exec_offset
     }
     else
     {
         moduleSelected.value = ""
         moduleType.value = 0
+        execOffset.value = 0
     }
 }
 
@@ -130,6 +142,11 @@ const breakpoints = computed(() => {
                             obj.strAddress =  mod.name + ":SetStat"
                         else if (addr == 36)
                             obj.strAddress =  mod.name + ":Close"
+                    }
+                    else if (mod.type == 1)
+                    {
+                        if (addr == mod.exec_offset)
+                            obj.strAddress = mod.name + ":Start"
                     }
                 }
             }

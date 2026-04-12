@@ -362,7 +362,7 @@ export const useCpuStore = defineStore('cpu', () => {
     // TODO: period should be a param
     // const run = (period: number) => {
     const run = () => {
-      sendCommand('run', { period: 100 })
+      sendCommand('run', { period: 50 })
     }
 
     const cpubreak = () => {

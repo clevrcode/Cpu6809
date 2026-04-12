@@ -12,7 +12,7 @@ const store = useCpuStore()
 
 const system_load = computed(() => {
     if (store.cpu_state) 
-        return (store.cpu_state.load * 100.0).toFixed(1)
+        return store.cpu_state.load.toFixed(1)
     return 0.0
 })
 
